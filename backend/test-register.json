@@ -1,0 +1,9 @@
+{
+  "fullName": "Test User",
+  "email": "test4@example.com",
+  "mobile": "1234567893",
+  "password": "password123",
+  "dateOfBirth": "1990-01-01",
+  "gender": "male",
+  "userType": "patient"
+}

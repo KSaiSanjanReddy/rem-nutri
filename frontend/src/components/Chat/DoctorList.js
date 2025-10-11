@@ -64,7 +64,7 @@ const DoctorList = ({ doctors, isLoading, onDoctorSelect, onFindUserByPhone }) =
               <div className="relative">
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-health-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-lg">
-                    {doctor.fullName?.charAt(0)?.toUpperCase() || 'D'}
+                    {doctor.full_name?.charAt(0)?.toUpperCase() || 'D'}
                   </span>
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
@@ -75,7 +75,7 @@ const DoctorList = ({ doctors, isLoading, onDoctorSelect, onFindUserByPhone }) =
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                      Dr. {doctor.fullName}
+                      Dr. {doctor.full_name}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
                       {doctor.specialization}
@@ -84,7 +84,7 @@ const DoctorList = ({ doctors, isLoading, onDoctorSelect, onFindUserByPhone }) =
                   
                   <div className="text-right">
                     <p className="text-lg font-bold text-primary-600">
-                      ₹{doctor.consultationFee}
+                      ₹{doctor.consultation_fee}
                     </p>
                     <p className="text-xs text-gray-500">per consultation</p>
                   </div>

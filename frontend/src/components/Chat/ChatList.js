@@ -23,28 +23,20 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
   };
 
   const getOtherParticipant = (chat) => {
-    if (!chat.participants || !Array.isArray(chat.participants)) {
-      return null;
-    }
+    if (!chat.participants || !Array.isArray(chat.participants)) return null;
     
     const currentUserId = currentUser?.id || currentUser?._id;
     
-    const otherParticipant = chat.participants?.find(p => {
+    return chat.participants.find(p => {
       const participantId = p.id || p._id;
       return participantId !== currentUserId;
     });
-    
-    return otherParticipant;
   };
 
-  const getUnreadCount = (chat) => {
-    // This would be calculated based on unread messages
-    return chat.unreadCount || 0;
-  };
+  const getUnreadCount = (chat) => chat.unreadCount || 0;
 
   return (
     <div className="h-full flex flex-col">
-      {/* Empty State */}
       {chats.length === 0 && !searchQuery ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
           <motion.div
@@ -87,7 +79,7 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
               const unreadCount = getUnreadCount(chat);
               const isOnline = otherParticipant && onlineUsers?.includes(otherParticipant.id || otherParticipant._id);
               
-              console.log(`Rendering chat ${index}:`, otherParticipant?.fullName || 'No name');
+              console.log(`Rendering chat ${index}:`, otherParticipant?.full_name || 'No name');
               
               return (
                 <motion.div
@@ -98,25 +90,21 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
                   onClick={() => onChatSelect(chat)}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
                 >
-                  {/* Avatar */}
                   <div className="relative">
                     <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-health-500 rounded-full flex items-center justify-center">
                       <span className="text-white font-medium text-sm">
-                        {(otherParticipant?.fullName || otherParticipant?.name || otherParticipant?.displayName)?.charAt(0)?.toUpperCase() || 'D'}
+                        {(otherParticipant?.full_name || otherParticipant?.name || otherParticipant?.display_name)?.charAt(0)?.toUpperCase() || 'D'}
                       </span>
                     </div>
-                    
-                    {/* Online Status */}
                     {isOnline && (
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                     )}
                   </div>
 
-                  {/* Chat Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {otherParticipant?.fullName || otherParticipant?.name || otherParticipant?.displayName || 'Unknown User'}
+                        {otherParticipant?.full_name || otherParticipant?.name || otherParticipant?.display_name || 'Unknown User'}
                       </h3>
                       <span className="text-xs text-gray-500">
                         {chat.lastActivity ? formatDistanceToNow(new Date(chat.lastActivity), { addSuffix: true }) : 'New'}
@@ -140,7 +128,6 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -15,7 +15,6 @@ const UserSearch = ({ onUserSelect, onBack }) => {
       return;
     }
 
-    // Basic phone number validation
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
     if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
       setError('Please enter a valid phone number');
@@ -134,17 +133,17 @@ const UserSearch = ({ onUserSelect, onBack }) => {
               {/* User Avatar */}
               <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-health-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-medium">
-                  {searchResult.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                  {searchResult.full_name?.charAt(0)?.toUpperCase() || 'U'}
                 </span>
               </div>
 
               {/* User Info */}
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {searchResult.fullName}
+                  {searchResult.full_name}
                 </h3>
                 <p className="text-sm text-gray-500 capitalize">
-                  {searchResult.userType}
+                  {searchResult.user_type}
                 </p>
                 <p className="text-xs text-gray-400">
                   {searchResult.mobile}

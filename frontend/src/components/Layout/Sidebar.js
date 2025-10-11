@@ -18,7 +18,6 @@ const Sidebar = ({ mobileMenuOpen }) => {
   // Check if current user is online
   const isCurrentUserOnline = user && onlineUsers.includes(user.id);
 
-
   const navigation = [
     {
       name: 'Dashboard',
@@ -78,21 +77,21 @@ const Sidebar = ({ mobileMenuOpen }) => {
       {/* User info */}
       <div className="relative px-6 py-6 border-b border-gray-200/50 bg-white/40 backdrop-blur-sm">
         <div className="flex items-center space-x-4">
-        <div className="w-14 h-14 bg-gradient-to-br from-primary-500 via-purple-500 to-health-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-          <span className="text-white font-bold text-lg">
-            {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-          </span>
-        </div>
+          <div className="w-14 h-14 bg-gradient-to-br from-primary-500 via-purple-500 to-health-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <span className="text-white font-bold text-lg">
+              {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </span>
+          </div>
           <div className="flex-1">
-            <p className="text-base font-semibold text-gray-900 mb-1">{user?.fullName || 'User'}</p>
-            <p className="text-sm text-gray-600 capitalize">{user?.userType === 'user' ? 'User' : (user?.userType || 'User')}</p>
+            <p className="text-base font-semibold text-gray-900 mb-1">{user?.full_name || 'User'}</p>
+            <p className="text-sm text-gray-600 capitalize">{user?.user_type === 'user' ? 'User' : (user?.user_type || 'User')}</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="relative flex-1 px-4 py-6 space-y-2">
-        {navigation.map((item, index) => {
+        {navigation.map((item) => {
           const Icon = item.icon;
           return (
             <NavLink
@@ -111,36 +110,41 @@ const Sidebar = ({ mobileMenuOpen }) => {
                 }
               }}
             >
-              {/* Active indicator */}
               {item.current && (
                 <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-primary-500 to-purple-500 rounded-r-full shadow-lg"></div>
               )}
               
-              <div className={`p-2 rounded-xl transition-all duration-300 ${
-                item.current 
-                  ? 'bg-gradient-to-r from-primary-500 to-purple-500 shadow-lg' 
-                  : 'bg-gray-100 group-hover:bg-gradient-to-r group-hover:from-primary-500/20 group-hover:to-purple-500/20'
-              }`}>
+              <div
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  item.current
+                    ? 'bg-gradient-to-r from-primary-500 to-purple-500 shadow-lg'
+                    : 'bg-gray-100 group-hover:bg-gradient-to-r group-hover:from-primary-500/20 group-hover:to-purple-500/20'
+                }`}
+              >
                 <Icon
                   className={`h-5 w-5 transition-colors duration-300 ${
-                    item.current ? 'text-white' : 'text-gray-500 group-hover:text-primary-600'
+                    item.current
+                      ? 'text-white'
+                      : 'text-gray-500 group-hover:text-primary-600'
                   }`}
                 />
               </div>
               
-              <span className={`ml-4 font-semibold transition-colors duration-300 ${
-                item.current ? 'text-primary-700' : 'text-gray-700 group-hover:text-gray-900'
-              }`}>
+              <span
+                className={`ml-4 font-semibold transition-colors duration-300 ${
+                  item.current
+                    ? 'text-primary-700'
+                    : 'text-gray-700 group-hover:text-gray-900'
+                }`}
+              >
                 {item.name}
               </span>
               
-              {/* Hover effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </NavLink>
           );
         })}
       </nav>
-
     </div>
   );
 };

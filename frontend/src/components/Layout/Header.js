@@ -85,12 +85,12 @@ const Header = () => {
               className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors"
             >
               <div className="text-right hidden sm:block">
-                <p className="text-xs font-medium text-gray-900">{user?.fullName || 'User'}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.userType === 'user' ? 'User' : (user?.userType || 'User')}</p>
+                <p className="text-xs font-medium text-gray-900">{user?.full_name || 'User'}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.user_type === 'user' ? 'User' : (user?.user_type || 'User')}</p>
               </div>
               <div className="w-7 h-7 bg-gradient-to-r from-primary-500 to-health-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-medium text-xs">
-                  {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                 </span>
               </div>
               <FiChevronDown className="h-4 w-4 text-gray-400" />

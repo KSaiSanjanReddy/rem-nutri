@@ -70,12 +70,8 @@ const AudioPlayer = ({ attachment, message }) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const audioUrl = attachment?.url || attachment?.fileUrl;
-  
-  console.log('🎤 AudioPlayer - attachment:', attachment);
-  console.log('🎤 AudioPlayer - audioUrl:', audioUrl);
-  console.log('🎤 AudioPlayer - hasError:', hasError);
-  
+  const audioUrl = attachment?.url || attachment?.file_url;
+
   if (hasError || !audioUrl) {
     return (
       <div className="space-y-2">
@@ -146,45 +142,35 @@ const AudioPlayer = ({ attachment, message }) => {
 
 const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, searchResults = [] }) => {
   const getSearchQuery = () => {
-    // Find search query from search results
     const searchResult = searchResults.find(result => result.message.id === message.id);
     return searchResult?.searchQuery || '';
   };
 
   const getMessageStatus = () => {
-    if (message.isRead) return 'read';
-    if (message.isDelivered) return 'delivered';
+    if (message.is_read) return 'read';
+    if (message.is_delivered) return 'delivered';
     return 'sent';
   };
 
   const formatTime = (timestamp) => {
-    if (!timestamp) {
-      return 'Just now';
-    }
+    if (!timestamp) return 'Just now';
     
     try {
       const date = new Date(timestamp);
-      if (isNaN(date.getTime())) {
-        return 'Just now';
-      }
+      if (isNaN(date.getTime())) return 'Just now';
       return format(date, 'HH:mm');
-    } catch (error) {
-      console.error('Error formatting timestamp:', error, 'timestamp:', timestamp);
+    } catch {
       return 'Just now';
     }
   };
 
   const renderMessageContent = () => {
-    // Default to text if messageType is not set or invalid
-    const messageType = message.messageType || 'text';
-    
+    const messageType = message.message_type || 'text';
+
     if (messageType === 'text') {
       return (
         <p className="text-base whitespace-pre-wrap break-words leading-relaxed">
-          <SearchHighlighter 
-            text={message.content} 
-            searchQuery={getSearchQuery()}
-          />
+          <SearchHighlighter text={message.content} searchQuery={getSearchQuery()} />
         </p>
       );
     }
@@ -194,10 +180,10 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
       return (
         <div className="space-y-3">
           <img
-            src={attachment?.url || attachment?.fileUrl}
+            src={attachment?.url || attachment?.file_url}
             alt="Shared image"
             className="max-w-xs rounded-2xl cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
-            onClick={() => window.open(attachment?.url || attachment?.fileUrl, '_blank')}
+            onClick={() => window.open(attachment?.url || attachment?.file_url, '_blank')}
           />
           {message.content && (
             <p className="text-base whitespace-pre-wrap break-words leading-relaxed">
@@ -225,23 +211,21 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
               {attachment?.type?.startsWith('image/') ? (
                 <FiImage className="w-6 h-6 text-primary-600" />
               ) : (
-              <FiFile className="w-6 h-6 text-primary-600" />
+                <FiFile className="w-6 h-6 text-primary-600" />
               )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-semibold text-gray-900 truncate">
-                {attachment?.name || attachment?.originalName || 'File'}
+                {attachment?.name || attachment?.original_name || 'File'}
               </p>
               <p className="text-sm text-gray-600">
-                {formatFileSize(attachment?.size || attachment?.fileSize)}
+                {formatFileSize(attachment?.size || attachment?.file_size)}
               </p>
             </div>
             <button
               onClick={() => {
-                const url = attachment?.url || attachment?.fileUrl;
-                if (url) {
-                  window.open(url, '_blank');
-                }
+                const url = attachment?.url || attachment?.file_url;
+                if (url) window.open(url, '_blank');
               }}
               className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-300"
             >
@@ -259,14 +243,7 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
 
     if (messageType === 'audio') {
       const attachment = message.attachments?.[0];
-      console.log('🎤 Rendering audio message:', message);
-      console.log('🎤 Audio attachments:', message.attachments);
-      console.log('🎤 Message content:', message.content);
-      console.log('🎤 Message ID:', message.id);
-      console.log('🎤 Message sender:', message['sender.fullName']);
-      
-      // Fallback for voice messages without proper attachments
-      if (!attachment || (!attachment.url && !attachment.fileUrl)) {
+      if (!attachment || (!attachment.url && !attachment.file_url)) {
         return (
           <div className="space-y-2">
             <div className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg max-w-xs">
@@ -279,35 +256,24 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
               </div>
             </div>
             {message.content && message.content !== '🎤 Voice Message' && (
-              <p className="text-sm whitespace-pre-wrap break-words">
-                {message.content}
-              </p>
+              <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
             )}
           </div>
         );
       }
       
-      return (
-        <AudioPlayer attachment={attachment} message={message} />
-      );
+      return <AudioPlayer attachment={attachment} message={message} />;
     }
 
-    return (
-      <p className="text-sm text-gray-500 italic">
-        Unsupported message type: {messageType}
-      </p>
-    );
+    return <p className="text-sm text-gray-500 italic">Unsupported message type: {messageType}</p>;
   };
 
   const renderMessageStatus = () => {
     const status = getMessageStatus();
-    
     if (isOwn) {
       return (
         <div className="flex items-center space-x-2 mt-3">
-          <span className="text-sm text-white/80 font-medium">
-            {formatTime(message.createdAt)}
-          </span>
+          <span className="text-sm text-white/80 font-medium">{formatTime(message.created_at)}</span>
           <div className="flex items-center">
             {status === 'sent' && <FiCheck className="w-4 h-4 text-white/60" />}
             {status === 'delivered' && <FiCheck className="w-4 h-4 text-white/60" />}
@@ -316,69 +282,44 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
         </div>
       );
     }
-
-    return (
-      <span className="text-sm text-gray-500 mt-3 font-medium">
-        {formatTime(message.createdAt)}
-      </span>
-    );
+    return <span className="text-sm text-gray-500 mt-3 font-medium">{formatTime(message.created_at)}</span>;
   };
 
   return (
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} ${showAvatar ? 'mt-6' : 'mt-2'} ${isHighlighted ? 'ring-2 ring-yellow-400 ring-opacity-50 bg-yellow-50 rounded-2xl p-3' : ''}`}>
       <div className={`flex items-end space-x-3 max-w-xs lg:max-w-md ${isOwn ? 'flex-row-reverse space-x-reverse' : ''}`}>
-        {/* Avatar for other person */}
         {!isOwn && showAvatar && (
           <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-purple-500 to-health-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
             <span className="text-white font-bold text-sm">
-              {(message.sender?.fullName || message['sender.fullName'])?.charAt(0)?.toUpperCase() || 'U'}
+              {(message.sender?.full_name || message['sender.full_name'])?.charAt(0)?.toUpperCase() || 'U'}
             </span>
           </div>
         )}
 
-        {/* Spacer when no avatar is shown for other person */}
-        {!isOwn && !showAvatar && (
-          <div className="w-10 h-10 flex-shrink-0"></div>
-        )}
+        {!isOwn && !showAvatar && <div className="w-10 h-10 flex-shrink-0"></div>}
 
-        {/* Message Bubble */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className={`relative px-6 py-4 rounded-3xl shadow-lg backdrop-blur-sm ${
-            isOwn
-              ? 'bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-br-lg'
-              : 'bg-white/80 text-gray-900 rounded-bl-lg border border-gray-200/50'
-          }`}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className={`relative px-6 py-4 rounded-3xl shadow-lg backdrop-blur-sm ${isOwn ? 'bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-br-lg' : 'bg-white/80 text-gray-900 rounded-bl-lg border border-gray-200/50'}`}
         >
-          {/* Message Content */}
           {renderMessageContent()}
-
-          {/* Edited Indicator */}
-          {message.isEdited && (
-            <span className="text-xs opacity-70 italic">(edited)</span>
-          )}
-
-          {/* Message Status and Time */}
+          {message.is_edited && <span className="text-xs opacity-70 italic">(edited)</span>}
           <div className={`flex items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
             {renderMessageStatus()}
           </div>
         </motion.div>
 
-        {/* Own Avatar */}
         {isOwn && showAvatar && (
           <div className="w-8 h-8 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-white font-medium text-xs">
-              {(message.sender?.fullName || message['sender.fullName'])?.charAt(0)?.toUpperCase() || 'U'}
+              {(message.sender?.full_name || message['sender.full_name'])?.charAt(0)?.toUpperCase() || 'U'}
             </span>
           </div>
         )}
 
-        {/* Spacer when no avatar is shown for own messages */}
-        {isOwn && !showAvatar && (
-          <div className="w-8 h-8 flex-shrink-0"></div>
-        )}
+        {isOwn && !showAvatar && <div className="w-8 h-8 flex-shrink-0"></div>}
       </div>
     </div>
   );

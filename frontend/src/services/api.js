@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://chat.consultare.io/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export class SocketService {
     }
 
     const io = require('socket.io-client');
-    this.socket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000', {
+    this.socket = io(process.env.REACT_APP_SOCKET_URL || 'https://chat.consultare.io', {
       transports: ['websocket', 'polling'],
       forceNew: true, // Force new connection
       reconnection: true,

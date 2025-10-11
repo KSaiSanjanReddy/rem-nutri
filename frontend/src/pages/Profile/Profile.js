@@ -9,14 +9,14 @@ const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || '',
+    full_name: user?.full_name || '',
     email: user?.email || '',
     mobile: user?.mobile || '',
-    dateOfBirth: user?.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
+    date_of_birth: user?.date_of_birth ? new Date(user.date_of_birth).toISOString().split('T')[0] : '',
     gender: user?.gender || '',
     specialization: user?.specialization || '',
     experience: user?.experience || '',
-    consultationFee: user?.consultationFee || '',
+    consultation_fee: user?.consultation_fee || '',
   });
 
   const handleInputChange = (e) => {
@@ -34,21 +34,21 @@ const Profile = () => {
 
   const handleCancel = () => {
     setFormData({
-      fullName: user?.fullName || '',
+      full_name: user?.full_name || '',
       email: user?.email || '',
       mobile: user?.mobile || '',
-      dateOfBirth: user?.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
+      date_of_birth: user?.date_of_birth ? new Date(user.date_of_birth).toISOString().split('T')[0] : '',
       gender: user?.gender || '',
       specialization: user?.specialization || '',
       experience: user?.experience || '',
-      consultationFee: user?.consultationFee || '',
+      consultation_fee: user?.consultation_fee || '',
     });
     setIsEditing(false);
   };
 
   const profileFields = [
     {
-      name: 'fullName',
+      name: 'full_name',
       label: 'Full Name',
       icon: FiUser,
       type: 'text',
@@ -69,7 +69,7 @@ const Profile = () => {
       editable: false
     },
     {
-      name: 'dateOfBirth',
+      name: 'date_of_birth',
       label: 'Date of Birth',
       icon: FiCalendar,
       type: 'date',
@@ -105,7 +105,7 @@ const Profile = () => {
       editable: true
     },
     {
-      name: 'consultationFee',
+      name: 'consultation_fee',
       label: 'Consultation Fee (₹)',
       icon: FiUser,
       type: 'number',
@@ -125,15 +125,15 @@ const Profile = () => {
           <div className="flex items-center space-x-4">
             <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <span className="text-3xl font-bold">
-                {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
               </span>
             </div>
             <div>
               <h1 className="text-2xl font-bold">
-                {user?.fullName || 'User'}
+                {user?.full_name || 'User'}
               </h1>
               <p className="text-primary-100 capitalize">
-                {user?.userType || 'User'} • {user?.specialization || 'Health Professional'}
+                {user?.user_type || 'User'} • {user?.specialization || 'Health Professional'}
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ const Profile = () => {
       </motion.div>
 
       {/* Doctor Information */}
-      {user?.userType === 'doctor' && (
+      {user?.user_type === 'doctor' && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -255,31 +255,31 @@ const Profile = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex items-center space-x-3">
-            <div className={`w-3 h-3 rounded-full ${user?.isEmailVerified ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <div className={`w-3 h-3 rounded-full ${user?.is_email_verified ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <div>
               <p className="text-sm font-medium text-gray-900">Email Verification</p>
               <p className="text-xs text-gray-500">
-                {user?.isEmailVerified ? 'Verified' : 'Not verified'}
+                {user?.is_email_verified ? 'Verified' : 'Not verified'}
               </p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3">
-            <div className={`w-3 h-3 rounded-full ${user?.isMobileVerified ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <div className={`w-3 h-3 rounded-full ${user?.is_mobile_verified ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <div>
               <p className="text-sm font-medium text-gray-900">Mobile Verification</p>
               <p className="text-xs text-gray-500">
-                {user?.isMobileVerified ? 'Verified' : 'Not verified'}
+                {user?.is_mobile_verified ? 'Verified' : 'Not verified'}
               </p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3">
-            <div className={`w-3 h-3 rounded-full ${user?.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <div className={`w-3 h-3 rounded-full ${user?.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <div>
               <p className="text-sm font-medium text-gray-900">Account Status</p>
               <p className="text-xs text-gray-500">
-                {user?.isActive ? 'Active' : 'Inactive'}
+                {user?.is_active ? 'Active' : 'Inactive'}
               </p>
             </div>
           </div>

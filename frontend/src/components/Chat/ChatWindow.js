@@ -14,9 +14,9 @@ import notificationService from '../../services/notificationService';
 const ChatWindow = ({ chat }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  console.log('👤 ChatWindow: Current user ID:', user?.id);
+  console.log('🤖 ChatWindow: Current user ID:', user?.id);
   const { messages, isSendingMessage, typingUsers, onlineUsers } = useSelector((state) => state.chat);
-  
+
   const [message, setMessage] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
@@ -25,12 +25,12 @@ const ChatWindow = ({ chat }) => {
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   const [highlightedMessageId, setHighlightedMessageId] = useState(null);
-  
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
   const otherParticipant = chat.participants?.find(p => p.id !== user?.id);
-  
+
   const isOtherParticipantOnline = otherParticipant && onlineUsers.includes(otherParticipant.id);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const ChatWindow = ({ chat }) => {
     const chatId = chat?.id || chat?._id;
     if (chatId) {
       socketService.joinChat(chatId);
-      
+
       socketService.onReceiveMessage((messageData) => {
         if (messageData.chatId === chatId) {
           const isOwnMessage = (messageData['sender.id'] || messageData.senderId) === (user?.id || user?._id);
@@ -133,7 +133,7 @@ const ChatWindow = ({ chat }) => {
     } catch (error) {
       dispatch(sendMessage({ chatId, message: messageData }));
     }
-    
+
     setMessage('');
     setIsTyping(false);
     if (typingTimeout) clearTimeout(typingTimeout);
@@ -141,7 +141,7 @@ const ChatWindow = ({ chat }) => {
 
   const handleTyping = (e) => {
     setMessage(e.target.value);
-    
+
     const chatId = chat?.id || chat?._id;
     if (!isTyping && chatId) {
       setIsTyping(true);
@@ -310,7 +310,7 @@ const ChatWindow = ({ chat }) => {
 
   const handleSearchResult = (results, currentIndex = 0) => {
     setSearchResults(results);
-    
+
     if (results.length > 0 && results[currentIndex]) {
       const targetMessage = results[currentIndex].message;
       setHighlightedMessageId(targetMessage.id);
@@ -326,8 +326,142 @@ const ChatWindow = ({ chat }) => {
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
-      {/* Chat Header, Messages, and Input remain the same but all user properties now snake_case */}
-      {/* ...rest of JSX unchanged... */}
+      {/* Chat Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <img
+                src={otherParticipant?.profile_picture || 'https://via.placeholder.com/40'}
+                alt={otherParticipant?.full_name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              {isOtherParticipantOnline && (
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+              )}
+            </div>
+            <div>
+              <h2 className="font-semibold text-slate-800">{otherParticipant?.full_name || 'Unknown User'}</h2>
+              <p className="text-sm text-slate-500">
+                {isOtherParticipantOnline ? 'Online' : 'Offline'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowChatSearch(!showChatSearch)}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            title="Search messages"
+          >
+            <FiSearch size={20} className="text-slate-600" />
+          </button>
+          <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Call">
+            <FiPhone size={20} className="text-slate-600" />
+          </button>
+          <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Video call">
+            <FiVideo size={20} className="text-slate-600" />
+          </button>
+          <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <FiMoreVertical size={20} className="text-slate-600" />
+          </button>
+        </div>
+      </div>
+
+      {/* Chat Search */}
+      {showChatSearch && (
+        <div className="bg-white border-b border-slate-200">
+          <ChatSearch chat={chat} onSearchResult={handleSearchResult} />
+        </div>
+      )}
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <AnimatePresence>
+          {messages && messages.map((msg, index) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              id={`message-${msg.id}`}
+              className={highlightedMessageId === msg.id ? 'bg-yellow-100 rounded-lg p-2' : ''}
+            >
+              <MessageBubble
+                message={msg}
+                isOwn={(msg['sender.id'] || msg.senderId) === (user?.id || user?._id)}
+                highlighted={highlightedMessageId === msg.id}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {typingUsers && typingUsers.length > 0 && (
+          <TypingIndicator users={typingUsers} />
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Message Input Form */}
+      <div className="border-t border-slate-200 bg-white/80 backdrop-blur-sm p-4">
+        <form onSubmit={handleSendMessage} className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setShowFileUpload(!showFileUpload)}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 hover:text-slate-800"
+            title="Attach file"
+          >
+            <FiPaperclip size={20} />
+          </button>
+
+          <div className="flex-1 relative">
+            <textarea
+              ref={inputRef}
+              value={message}
+              onChange={handleTyping}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 resize-none"
+              rows="1"
+              style={{ maxHeight: '120px' }}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowVoiceRecorder(!showVoiceRecorder)}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 hover:text-slate-800"
+            title="Voice message"
+          >
+            <FiMic size={20} />
+          </button>
+
+          <button
+            type="submit"
+            disabled={!message.trim() || isSendingMessage}
+            className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg transition-colors"
+            title="Send message"
+          >
+            <FiSend size={20} />
+          </button>
+        </form>
+
+        {/* File Upload Modal */}
+        {showFileUpload && (
+          <div className="mt-4">
+            <FileUpload onUpload={handleFileUpload} onClose={() => setShowFileUpload(false)} />
+          </div>
+        )}
+
+        {/* Voice Recorder Modal */}
+        {showVoiceRecorder && (
+          <div className="mt-4">
+            <VoiceRecorder onUpload={handleVoiceUpload} onClose={() => setShowVoiceRecorder(false)} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

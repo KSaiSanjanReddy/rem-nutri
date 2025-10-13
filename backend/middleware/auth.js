@@ -54,7 +54,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    if (!user.isActive) {
+    if (!user.is_active) {
       return res.status(401).json({
         status: 'error',
         message: 'Account is deactivated'
@@ -96,7 +96,7 @@ const refreshToken = async (req, res, next) => {
     }
 
     // Check if refresh token exists in user's refresh tokens
-    const tokenExists = user.refreshTokens.some(
+    const tokenExists = user.refresh_tokens.some(
       token => token.token === refreshToken
     );
 
@@ -110,8 +110,9 @@ const refreshToken = async (req, res, next) => {
     // Generate new tokens
     const tokens = generateTokens(user.id);
     
-    // Update refresh token in database
-    user.refreshTokens.push({ token: tokens.refreshToken });
+    // Remove old refresh token and add new one
+    user.refresh_tokens = user.refresh_tokens.filter(token => token.token !== refreshToken);
+    user.refresh_tokens.push({ token: tokens.refreshToken });
     await user.save();
 
     res.json({

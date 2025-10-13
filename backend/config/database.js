@@ -20,7 +20,11 @@ const sequelize = new Sequelize(
       timestamps: true,
       underscored: true,
       createdAt: 'created_at',
-      updatedAt: 'updated_at'
+      updatedAt: 'updated_at',
+      schema: 'public'
+    },
+    dialectOptions: {
+      searchPath: 'public'
     }
   }
 );

@@ -49,7 +49,7 @@ router.post('/create', [
         include: [{
           model: User,
           as: 'participants',
-          attributes: ['id', 'fullName', 'profilePicture']
+          attributes: ['id', 'full_name', 'profile_picture']
         }]
       });
 
@@ -82,7 +82,7 @@ router.post('/create', [
           [User.sequelize.Op.in]: [currentUserId, participantId]
         }
       },
-      attributes: ['id', 'fullName', 'profilePicture', 'userType']
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
     });
 
     res.status(201).json({
@@ -134,7 +134,7 @@ router.get('/list', async (req, res) => {
               [User.sequelize.Op.in]: chat.participants
             }
           },
-          attributes: ['id', 'fullName', 'profilePicture', 'userType']
+          attributes: ['id', 'full_name', 'profile_picture', 'user_type']
         });
         return {
           ...chat.toJSON(),
@@ -207,7 +207,7 @@ router.get('/:id', async (req, res) => {
           [User.sequelize.Op.in]: chat.participants
         }
       },
-      attributes: ['id', 'fullName', 'profilePicture', 'userType']
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
     });
 
     // Get messages
@@ -222,7 +222,7 @@ router.get('/:id', async (req, res) => {
       include: [{
         model: User,
         as: 'sender',
-        attributes: ['id', 'fullName', 'profilePicture', 'userType']
+        attributes: ['id', 'full_name', 'profile_picture', 'user_type']
       }]
     });
 
@@ -306,7 +306,7 @@ router.post('/:id/message', [
 
     // Get sender info
     const sender = await User.findByPk(senderId, {
-      attributes: ['id', 'fullName', 'profilePicture', 'userType']
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
     });
 
     res.status(201).json({

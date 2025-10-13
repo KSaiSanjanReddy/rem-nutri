@@ -21,16 +21,22 @@ const OTP = sequelize.define('OTP', {
     }
   },
   type: {
-    type: DataTypes.ENUM('email', 'mobile', 'password-reset'),
-    allowNull: false
+    type: DataTypes.STRING(20),
+    allowNull: false,
+    validate: {
+      isIn: [['email', 'mobile', 'password-reset']]
+    }
   },
   purpose: {
-    type: DataTypes.ENUM('registration', 'login', 'password-reset', 'email-verification', 'mobile-verification'),
-    allowNull: false
+    type: DataTypes.STRING(30),
+    allowNull: false,
+    validate: {
+      isIn: [['registration', 'login', 'password-reset', 'email-verification', 'mobile-verification']]
+    }
   },
-  isUsed: {
+  is_used: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
   attempts: {
     type: DataTypes.INTEGER,
@@ -39,31 +45,28 @@ const OTP = sequelize.define('OTP', {
       max: 3
     }
   },
-  expiresAt: {
+  expires_at: {
     type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
   }
 }, {
   tableName: 'otps',
+  underscored: true,
   indexes: [
-    {
-      fields: ['identifier', 'type', 'purpose']
-    },
-    {
-      fields: ['expiresAt']
-    }
+    { fields: ['identifier', 'type', 'purpose'] },
+    { fields: ['expires_at'] }
   ]
 });
 
 // Instance methods
 OTP.prototype.isValid = function() {
-  return !this.isUsed && 
+  return !this.is_used && 
          this.attempts < 3 && 
-         this.expiresAt > new Date();
+         this.expires_at > new Date();
 };
 
 OTP.prototype.markAsUsed = async function() {
-  this.isUsed = true;
+  this.is_used = true;
   return await this.save();
 };
 
@@ -83,13 +86,8 @@ OTP.generateOTP = function(length = 6) {
 };
 
 OTP.createOTP = async function(identifier, type, purpose, expiryMinutes = 5) {
-  // Delete any existing OTPs for this identifier and purpose
   await this.destroy({
-    where: {
-      identifier,
-      type,
-      purpose
-    }
+    where: { identifier, type, purpose }
   });
 
   const otp = this.generateOTP();
@@ -100,19 +98,14 @@ OTP.createOTP = async function(identifier, type, purpose, expiryMinutes = 5) {
     otp,
     type,
     purpose,
-    expiresAt
+    expires_at: expiresAt
   });
 };
 
 OTP.verifyOTP = async function(identifier, otp, type, purpose) {
   const otpRecord = await this.findOne({
-    where: {
-      identifier,
-      type,
-      purpose,
-      isUsed: false
-    },
-    order: [['createdAt', 'DESC']]
+    where: { identifier, type, purpose, is_used: false },
+    order: [['created_at', 'DESC']]
   });
 
   if (!otpRecord) {

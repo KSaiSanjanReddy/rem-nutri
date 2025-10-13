@@ -6,11 +6,51 @@ const ChatParticipant = require('../models/ChatParticipant');
 
 const initDatabase = async () => {
   try {
-    // Sync all models
-    await sequelize.sync({ alter: true });
+    // Define model associations
+    const { Chat, Message, ChatParticipant } = require('../models/Chat');
+    
+    // Chat associations
+    Chat.belongsToMany(User, {
+      through: ChatParticipant,
+      foreignKey: 'chatId',
+      otherKey: 'userId',
+      as: 'participants'
+    });
+
+    User.belongsToMany(Chat, {
+      through: ChatParticipant,
+      foreignKey: 'userId',
+      otherKey: 'chatId',
+      as: 'chats'
+    });
+
+    Chat.hasMany(Message, {
+      foreignKey: 'chatId',
+      as: 'messages'
+    });
+
+    Message.belongsTo(Chat, {
+      foreignKey: 'chatId',
+      as: 'chat'
+    });
+
+    Message.belongsTo(User, {
+      foreignKey: 'senderId',
+      as: 'sender'
+    });
+
+    User.hasMany(Message, {
+      foreignKey: 'senderId',
+      as: 'sentMessages'
+    });
+
+    console.log('✅ Model associations defined successfully');
+
+    // Sync all models - use force: false to avoid permission issues with enums
+    await sequelize.sync({ force: false, alter: false });
     console.log('✅ Database tables created/updated successfully');
     
-    // Create indexes
+    // Create indexes - using snake_case column names since underscored: true
     await sequelize.query(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
       CREATE INDEX IF NOT EXISTS idx_users_mobile ON users(mobile);

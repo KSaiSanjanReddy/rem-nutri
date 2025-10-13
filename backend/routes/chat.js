@@ -65,10 +65,10 @@ const upload = multer({
 // @access  Private
 router.post('/create', [
   body('participantId').isUUID().withMessage('Valid participant ID required'),
-  body('chatType').optional().isIn(['direct', 'group']).withMessage('Chat type must be direct or group')
+  body('chat_type').optional().isIn(['direct', 'group']).withMessage('Chat type must be direct or group')
 ], checkValidation, async (req, res) => {
   try {
-    const { participantId, chatType = 'direct', chatName } = req.body;
+    const { participantId, chat_type = 'direct', chat_name } = req.body;
     const currentUserId = req.user.id;
 
     // Check if participant exists
@@ -80,30 +80,28 @@ router.post('/create', [
       });
     }
 
-    // Check if direct chat already exists
-    if (chatType === 'direct') {
-      // First get all chats where both users are participants
-      const userChats = await Chat.findAll({
-        where: {
-          chatType: 'direct',
-          isActive: true
+    // Check if direct chat already exists using raw SQL
+    if (chat_type === 'direct') {
+      const existingChats = await sequelize.query(`
+        SELECT DISTINCT c.* 
+        FROM chats c 
+        INNER JOIN chat_participants cp1 ON c.id = cp1.chat_id 
+        INNER JOIN chat_participants cp2 ON c.id = cp2.chat_id 
+        WHERE c.chat_type = 'direct' 
+        AND c.is_active = true
+        AND cp1.user_id = :currentUserId 
+        AND cp2.user_id = :participantId
+        AND cp1.user_id != cp2.user_id
+      `, {
+        replacements: { 
+          currentUserId: currentUserId, 
+          participantId: participantId 
         },
-        include: [{
-          model: User,
-          as: 'participants',
-          attributes: ['id']
-        }]
+        type: sequelize.QueryTypes.SELECT
       });
 
-      // Find chat with exactly these two participants
-      const existingChat = userChats.find(chat => {
-        const participantIds = chat.participants.map(p => p.id);
-        return participantIds.length === 2 && 
-               participantIds.includes(currentUserId) && 
-               participantIds.includes(participantId);
-      });
-
-      if (existingChat) {
+      if (existingChats.length > 0) {
+        const existingChat = existingChats[0];
         return res.json({
           status: 'success',
           message: 'Chat already exists',
@@ -114,12 +112,12 @@ router.post('/create', [
 
     // Create new chat
     const chatData = {
-      chatType,
-      lastActivity: new Date()
+      chat_type,
+      last_activity: new Date()
     };
 
-    if (chatType === 'group' && chatName) {
-      chatData.chatName = chatName;
+    if (chat_type === 'group' && chat_name) {
+      chatData.chat_name = chat_name;
     }
 
     const chat = await Chat.create(chatData);
@@ -131,16 +129,27 @@ router.post('/create', [
           [Op.in]: [currentUserId, participantId]
         }
       },
-      attributes: ['id', 'fullName', 'profilePicture', 'userType']
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
     });
 
-    // Add participants to chat using many-to-many relationship
-    await chat.addParticipants(participants);
+    // Add participants to chat using raw SQL
+    for (const participant of participants) {
+      await sequelize.query(`
+        INSERT INTO chat_participants (id, chat_id, user_id, joined_at, is_active, created_at, updated_at)
+        VALUES (gen_random_uuid(), :chatId, :userId, NOW(), true, NOW(), NOW())
+        ON CONFLICT (chat_id, user_id) DO NOTHING
+      `, {
+        replacements: { 
+          chatId: chat.id, 
+          userId: participant.id 
+        },
+        type: sequelize.QueryTypes.INSERT
+      });
+    }
     
-    console.log('Chat created with participants:', participants.map(p => ({ id: p.id, name: p.fullName })));
+    console.log('Chat created with participants:', participants.map(p => ({ id: p.id, name: p.full_name })));
     
     // Verify participants were added to chat_participants table
-    const { sequelize } = require('../config/database');
     const chatParticipants = await sequelize.query(`
       SELECT cp.*, u.full_name as user_name
       FROM chat_participants cp 
@@ -221,7 +230,7 @@ router.get('/list', async (req, res) => {
     const chatsWithParticipants = await Promise.all(
       chats.map(async (chat) => {
         const participants = await sequelize.query(`
-          SELECT u.id, u.full_name as "fullName", u.profile_picture as "profilePicture", u.user_type as "userType"
+          SELECT u.id, u.full_name, u.profile_picture, u.user_type
           FROM users u 
           INNER JOIN chat_participants cp ON u.id = cp.user_id 
           WHERE cp.chat_id = :chatId
@@ -284,7 +293,7 @@ router.get('/:id', async (req, res) => {
       where: {
         chatId: chatId,
         userId: currentUserId,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -299,7 +308,7 @@ router.get('/:id', async (req, res) => {
     const chat = await Chat.findOne({
       where: {
         id: chatId,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -312,7 +321,7 @@ router.get('/:id', async (req, res) => {
 
     // Get participants using the join table
     const participants = await sequelize.query(`
-      SELECT u.id, u.full_name AS "fullName", u.profile_picture AS "profilePicture", u.user_type AS "userType", u.is_active AS "isActive", u.last_login AS "lastLogin"
+      SELECT u.id, u.full_name, u.profile_picture, u.user_type, u.is_active, u.last_login
       FROM users u
       INNER JOIN chat_participants cp ON u.id = cp.user_id
       WHERE cp.chat_id = :chatId AND cp.is_active = true
@@ -340,9 +349,9 @@ router.get('/:id', async (req, res) => {
         m.created_at as "createdAt",
         m.updated_at as "updatedAt",
         u.id as "sender.id",
-        u.full_name as "sender.fullName",
-        u.profile_picture as "sender.profilePicture",
-        u.user_type as "sender.userType"
+        u.full_name as "sender.full_name",
+        u.profile_picture as "sender.profile_picture",
+        u.user_type as "sender.user_type"
       FROM messages m
       LEFT JOIN users u ON m.sender_id = u.id
       WHERE m.chat_id = :chatId AND m.is_deleted = false
@@ -425,7 +434,7 @@ router.post('/:id/message', [
       where: {
         chatId: chatId,
         userId: senderId,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -448,12 +457,12 @@ router.post('/:id/message', [
 
     // Update chat last activity
     await chat.update({
-      lastActivity: new Date()
+      last_activity: new Date()
     });
 
     // Get sender info
     const sender = await User.findByPk(senderId, {
-      attributes: ['id', 'fullName', 'profilePicture', 'userType']
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
     });
 
     res.status(201).json({
@@ -489,7 +498,7 @@ router.put('/:id/read', async (req, res) => {
       where: {
         chatId: chatId,
         userId: userId,
-        isActive: true
+        is_active: true
       }
     });
 

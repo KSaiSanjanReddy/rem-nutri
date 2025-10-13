@@ -8,7 +8,7 @@ const User = sequelize.define('User', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  fullName: {
+  full_name: {
     type: DataTypes.STRING(50),
     allowNull: false,
     validate: {
@@ -38,37 +38,43 @@ const User = sequelize.define('User', {
       len: [6, 255]
     }
   },
-  userType: {
-    type: DataTypes.ENUM('user', 'doctor', 'admin'),
-    defaultValue: 'user'
+  user_type: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'user',
+    validate: {
+      isIn: [['user', 'doctor', 'admin']]
+    }
   },
-  isEmailVerified: {
+  is_email_verified: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
-  isMobileVerified: {
+  is_mobile_verified: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
-  profilePicture: {
+  profile_picture: {
     type: DataTypes.STRING(500),
-    allowNull: true
+    allowNull: true,
   },
-  dateOfBirth: {
+  date_of_birth: {
     type: DataTypes.DATEONLY,
-    allowNull: false
+    allowNull: false,
   },
   gender: {
-    type: DataTypes.ENUM('male', 'female', 'other'),
-    allowNull: false
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    validate: {
+      isIn: [['male', 'female', 'other']]
+    }
   },
-  isActive: {
+  is_active: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
+    defaultValue: true,
   },
-  lastLogin: {
+  last_login: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   },
   // Doctor specific fields
   specialization: {
@@ -78,7 +84,7 @@ const User = sequelize.define('User', {
       len: [2, 100]
     }
   },
-  licenseNumber: {
+  license_number: {
     type: DataTypes.STRING(50),
     allowNull: true,
     unique: true,
@@ -94,17 +100,17 @@ const User = sequelize.define('User', {
       max: 50
     }
   },
-  consultationFee: {
+  consultation_fee: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     validate: {
       min: 0
     }
   },
-  refreshTokens: {
+  refresh_tokens: {
     type: DataTypes.JSONB,
     defaultValue: [],
-    allowNull: true
+    allowNull: true,
   }
 }, {
   tableName: 'users',

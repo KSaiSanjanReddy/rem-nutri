@@ -25,20 +25,14 @@ const ChatParticipant = sequelize.define('ChatParticipant', {
   },
   joinedAt: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW,
   },
   isActive: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
+    defaultValue: true,
   }
 }, {
-  tableName: 'chat_participants',
-  indexes: [
-    {
-      unique: true,
-      fields: ['chatId', 'userId']
-    }
-  ]
+  tableName: 'chat_participants'
 });
 
 module.exports = ChatParticipant;

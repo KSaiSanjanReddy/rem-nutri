@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSend, FiPaperclip, FiSmile, FiMoreVertical, FiPhone, FiVideo, FiMic, FiSearch } from 'react-icons/fi';
+import { FiSend, FiPaperclip, FiSmile, FiMoreVertical, FiPhone, FiVideo, FiMic, FiSearch, FiMessageCircle } from 'react-icons/fi';
 import { sendMessage, addMessage, markAsRead, getChatDetails } from '../../store/slices/chatSlice';
 import { socketService } from '../../services/api';
 import MessageBubble from './MessageBubble';
@@ -378,24 +378,36 @@ const ChatWindow = ({ chat }) => {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        <AnimatePresence>
-          {messages && messages.map((msg, index) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              id={`message-${msg.id}`}
-              className={highlightedMessageId === msg.id ? 'bg-yellow-100 rounded-lg p-2' : ''}
-            >
-              <MessageBubble
-                message={msg}
-                isOwn={(msg['sender.id'] || msg.senderId) === (user?.id || user?._id)}
-                highlighted={highlightedMessageId === msg.id}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {messages && messages.length > 0 ? (
+          <AnimatePresence>
+            {messages.map((msg, index) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                id={`message-${msg.id}`}
+                className={highlightedMessageId === msg.id ? 'bg-yellow-100 rounded-lg p-2' : ''}
+              >
+                <MessageBubble
+                  message={msg}
+                  isOwn={(msg['sender.id'] || msg.senderId) === (user?.id || user?._id)}
+                  highlighted={highlightedMessageId === msg.id}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <FiMessageCircle className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No messages yet</h3>
+            <p className="text-gray-500 max-w-sm">
+              Start the conversation by sending your first message below.
+            </p>
+          </div>
+        )}
 
         {typingUsers && typingUsers.length > 0 && (
           <TypingIndicator users={typingUsers} />

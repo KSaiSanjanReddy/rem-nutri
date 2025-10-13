@@ -42,12 +42,12 @@ router.get('/profile', async (req, res) => {
 // @desc    Update user profile
 // @access  Private
 router.put('/profile', [
-  body('fullName')
+  body('full_name')
     .optional()
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Full name must be between 2 and 50 characters'),
-  body('dateOfBirth')
+  body('date_of_birth')
     .optional()
     .isISO8601()
     .withMessage('Please provide a valid date of birth'),
@@ -64,15 +64,15 @@ router.put('/profile', [
     .optional()
     .isInt({ min: 0, max: 50 })
     .withMessage('Experience must be between 0 and 50 years'),
-  body('consultationFee')
+  body('consultation_fee')
     .optional()
     .isFloat({ min: 0 })
     .withMessage('Consultation fee must be a positive number')
 ], checkValidation, async (req, res) => {
   try {
     const allowedUpdates = [
-      'fullName', 'dateOfBirth', 'gender', 'profilePicture',
-      'specialization', 'experience', 'consultationFee'
+      'full_name', 'date_of_birth', 'gender', 'profile_picture',
+      'specialization', 'experience', 'consultation_fee'
     ];
 
     const updates = {};
@@ -89,7 +89,7 @@ router.put('/profile', [
         message: 'User not found'
       });
     }
-    
+
     await user.update(updates);
 
     res.json({
@@ -161,7 +161,7 @@ router.get('/doctors', async (req, res) => {
     const { page = 1, limit = 10, specialization, search } = req.query;
     const skip = (page - 1) * limit;
 
-    let whereClause = { userType: 'doctor', isActive: true };
+    let whereClause = { user_type: 'doctor', is_active: true };
 
     if (specialization) {
       whereClause.specialization = {
@@ -171,14 +171,14 @@ router.get('/doctors', async (req, res) => {
 
     if (search) {
       whereClause[Op.or] = [
-        { fullName: { [Op.iLike]: `%${search}%` } },
+        { full_name: { [Op.iLike]: `%${search}%` } },
         { specialization: { [Op.iLike]: `%${search}%` } }
       ];
     }
 
     const doctors = await User.findAll({
       where: whereClause,
-      attributes: ['fullName', 'specialization', 'experience', 'consultationFee', 'profilePicture'],
+      attributes: ['id', 'full_name', 'specialization', 'experience', 'consultation_fee', 'profile_picture'],
       order: [['created_at', 'DESC']],
       offset: skip,
       limit: parseInt(limit)
@@ -217,10 +217,10 @@ router.get('/doctors/:id', async (req, res) => {
     const doctor = await User.findOne({
       where: {
         id: req.params.id,
-        userType: 'doctor',
-        isActive: true
+        user_type: 'doctor',
+        is_active: true
       },
-      attributes: { exclude: ['password', 'refreshTokens'] }
+      attributes: { exclude: ['password', 'refresh_tokens'] }
     });
 
     if (!doctor) {
@@ -254,7 +254,7 @@ router.delete('/account', async (req, res) => {
     const user = await User.findByPk(req.user.id);
     if (user) {
       await user.update({
-        isActive: false
+        is_active: false
       });
     }
 
@@ -308,7 +308,7 @@ router.get('/stats', authorize('doctor'), async (req, res) => {
 router.get('/search-by-phone', async (req, res) => {
   try {
     const { phone } = req.query;
-    
+
     // Basic phone number validation
     if (!phone || phone.trim() === '') {
       return res.status(400).json({
@@ -324,9 +324,9 @@ router.get('/search-by-phone', async (req, res) => {
       where: {
         mobile: phone,
         id: { [Op.ne]: currentUserId }, // Don't include current user
-        isActive: true
+        is_active: true
       },
-      attributes: ['id', 'fullName', 'userType', 'profilePicture', 'mobile']
+      attributes: ['id', 'full_name', 'user_type', 'profile_picture', 'mobile']
     });
 
     if (!user) {

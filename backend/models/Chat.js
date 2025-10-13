@@ -7,29 +7,32 @@ const Chat = sequelize.define('Chat', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  chatType: {
-    type: DataTypes.ENUM('direct', 'group'),
-    defaultValue: 'direct'
+  chat_type: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'direct',
+    validate: {
+      isIn: [['direct', 'group']]
+    }
   },
-  chatName: {
+  chat_name: {
     type: DataTypes.STRING(100),
     allowNull: true,
     validate: {
       len: [1, 100]
     }
   },
-  lastActivity: {
+  last_activity: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW,
   },
-  isActive: {
+  is_active: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
+    defaultValue: true,
   },
   // Health-specific fields
-  consultationId: {
+  consultation_id: {
     type: DataTypes.STRING(50),
-    allowNull: true
+    allowNull: true,
   },
   symptoms: {
     type: DataTypes.ARRAY(DataTypes.STRING),
@@ -43,20 +46,12 @@ const Chat = sequelize.define('Chat', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  followUpDate: {
+  follow_up_date: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   }
 }, {
-  tableName: 'chats',
-  indexes: [
-    {
-      fields: ['lastActivity']
-    },
-    {
-      fields: ['consultation_id']
-    }
-  ]
+  tableName: 'chats'
 });
 
 const Message = sequelize.define('Message', {
@@ -65,7 +60,7 @@ const Message = sequelize.define('Message', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  chatId: {
+  chat_id: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
@@ -73,7 +68,7 @@ const Message = sequelize.define('Message', {
       key: 'id'
     }
   },
-  senderId: {
+  sender_id: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
@@ -88,50 +83,45 @@ const Message = sequelize.define('Message', {
       len: [1, 1000]
     }
   },
-  messageType: {
-    type: DataTypes.ENUM('text', 'image', 'document', 'file', 'audio'),
-    defaultValue: 'text'
+  message_type: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'text',
+    validate: {
+      isIn: [['text', 'image', 'document', 'file', 'audio']]
+    }
   },
   attachments: {
     type: DataTypes.JSONB,
     allowNull: true,
     defaultValue: []
   },
-  isRead: {
+  is_read: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
-  readBy: {
+  read_by: {
     type: DataTypes.JSONB,
     allowNull: true,
-    defaultValue: []
+    defaultValue: [],
   },
-  isEdited: {
+  is_edited: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
-  editedAt: {
+  edited_at: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   },
-  isDeleted: {
+  is_deleted: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
-  deletedAt: {
+  deleted_at: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   }
 }, {
-  tableName: 'messages',
-  indexes: [
-    {
-      fields: ['chatId', 'createdAt']
-    },
-    {
-      fields: ['senderId']
-    }
-  ]
+  tableName: 'messages'
 });
 
 // Define ChatParticipant model for the many-to-many relationship
@@ -141,7 +131,7 @@ const ChatParticipant = sequelize.define('ChatParticipant', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true
   },
-  chatId: {
+  chat_id: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
@@ -149,7 +139,7 @@ const ChatParticipant = sequelize.define('ChatParticipant', {
       key: 'id'
     }
   },
-  userId: {
+  user_id: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
@@ -157,63 +147,25 @@ const ChatParticipant = sequelize.define('ChatParticipant', {
       key: 'id'
     }
   },
-  joinedAt: {
+  joined_at: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW,
   },
-  isActive: {
+  is_active: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
+    defaultValue: true,
   }
 }, {
-  tableName: 'chat_participants',
-  indexes: [
-    {
-      unique: true,
-      fields: ['chatId', 'userId']
-    }
-  ]
+  tableName: 'chat_participants'
 });
 
-// Define associations
-Chat.belongsToMany(sequelize.models.User, {
-  through: ChatParticipant,
-  foreignKey: 'chatId',
-  otherKey: 'userId',
-  as: 'participants'
-});
-
-sequelize.models.User.belongsToMany(Chat, {
-  through: ChatParticipant,
-  foreignKey: 'userId',
-  otherKey: 'chatId',
-  as: 'chats'
-});
-
-Chat.hasMany(Message, {
-  foreignKey: 'chatId',
-  as: 'messages'
-});
-
-Message.belongsTo(Chat, {
-  foreignKey: 'chatId',
-  as: 'chat'
-});
-
-Message.belongsTo(sequelize.models.User, {
-  foreignKey: 'senderId',
-  as: 'sender'
-});
-
-sequelize.models.User.hasMany(Message, {
-  foreignKey: 'senderId',
-  as: 'sentMessages'
-});
+// Define associations - these will be set up after all models are loaded
+// The associations are defined in the initDatabase.js file
 
 // Instance methods
 Chat.prototype.getParticipantsInfo = async function() {
   return await this.getParticipants({
-    attributes: ['id', 'fullName', 'profilePicture', 'isActive', 'lastLogin']
+    attributes: ['id', 'full_name', 'profile_picture', 'is_active', 'last_login']
   });
 };
 
@@ -222,7 +174,7 @@ Chat.prototype.markAsRead = async function(userId) {
     { 
       isRead: true,
       readBy: sequelize.fn('jsonb_set', 
-        sequelize.col('readBy'), 
+        sequelize.col('read_by'), 
         '{0}', 
         JSON.stringify({ user: userId, readAt: new Date() })
       )

@@ -62,9 +62,16 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const initializeApp = async () => {
   try {
     await testConnection();
-    await initDatabase();
+    console.log('✅ Database connection successful');
+    
+    // Try to initialize database, but don't exit if it fails
+    try {
+      await initDatabase();
+    } catch (dbError) {
+      console.warn('⚠️ Database initialization failed, but continuing with existing tables:', dbError.message);
+    }
   } catch (error) {
-    console.error('Failed to initialize database:', error);
+    console.error('❌ Database connection failed:', error);
     process.exit(1);
   }
 };
@@ -174,13 +181,13 @@ io.on('connection', (socket) => {
       
       // Update chat last activity
       await Chat.update(
-        { lastActivity: new Date() },
+        { last_activity: new Date() },
         { where: { id: chatId } }
       );
       
       // Get sender info
       const sender = await User.findByPk(senderId, {
-        attributes: ['id', 'fullName', 'profilePicture', 'userType']
+        attributes: ['id', 'full_name', 'profile_picture', 'user_type']
       });
       
       // Broadcast message to all participants in the chat

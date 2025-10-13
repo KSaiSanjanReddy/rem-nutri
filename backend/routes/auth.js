@@ -10,7 +10,7 @@ const router = express.Router();
 
 // Validation rules
 const registerValidation = [
-  body('fullName')
+  body('full_name')
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Full name must be between 2 and 50 characters'),
@@ -19,18 +19,18 @@ const registerValidation = [
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('mobile')
-    .isMobilePhone()
+    .isLength({ min: 10, max: 15 })
     .withMessage('Please provide a valid mobile number'),
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long'),
-  body('dateOfBirth')
+  body('date_of_birth')
     .isISO8601()
     .withMessage('Please provide a valid date of birth'),
   body('gender')
     .isIn(['male', 'female', 'other'])
     .withMessage('Gender must be male, female, or other'),
-  body('userType')
+  body('user_type')
     .optional()
     .isIn(['user', 'doctor'])
     .withMessage('User type must be user or doctor')
@@ -77,17 +77,17 @@ const checkValidation = (req, res, next) => {
 router.post('/register', registerValidation, checkValidation, async (req, res) => {
   try {
     const {
-      fullName,
+      full_name,
       email,
       mobile,
       password,
-      dateOfBirth,
+      date_of_birth,
       gender,
-      userType = 'user',
+      user_type = 'user',
       specialization,
-      licenseNumber,
+      license_number,
       experience,
-      consultationFee
+      consultation_fee
     } = req.body;
 
     // Check if user already exists
@@ -108,36 +108,36 @@ router.post('/register', registerValidation, checkValidation, async (req, res) =
 
     // Create user
     const userData = {
-      fullName,
+      full_name,
       email,
       mobile,
       password,
-      dateOfBirth,
+      date_of_birth,
       gender,
-      userType
+      user_type
     };
 
     // Add doctor-specific fields if user is a doctor
-    if (userType === 'doctor') {
+    if (user_type === 'doctor') {
       userData.specialization = specialization;
-      userData.licenseNumber = licenseNumber;
+      userData.license_number = license_number;
       userData.experience = experience;
-      userData.consultationFee = consultationFee;
+      userData.consultation_fee = consultation_fee;
     }
 
     const user = await User.create(userData);
 
     // Mark email and mobile as verified for immediate login
-    user.isEmailVerified = true;
-    user.isMobileVerified = true;
+    user.is_email_verified = true;
+    user.is_mobile_verified = true;
     await user.save();
 
     // Generate tokens for immediate login
     const tokens = generateTokens(user.id);
     
     // Save refresh token to database
-    user.refreshTokens.push({ token: tokens.refreshToken });
-    user.lastLogin = new Date();
+    user.refresh_tokens.push({ token: tokens.refreshToken });
+    user.last_login = new Date();
     await user.save();
 
     // Remove password from response
@@ -188,7 +188,7 @@ router.post('/login', loginValidation, checkValidation, async (req, res) => {
     }
 
     // Check if account is active
-    if (!user.isActive) {
+    if (!user.is_active) {
       return res.status(401).json({
         status: 'error',
         message: 'Account is deactivated'
@@ -208,8 +208,8 @@ router.post('/login', loginValidation, checkValidation, async (req, res) => {
     const tokens = generateTokens(user.id);
 
     // Save refresh token to database
-    user.refreshTokens.push({ token: tokens.refreshToken });
-    user.lastLogin = new Date();
+    user.refresh_tokens.push({ token: tokens.refreshToken });
+    user.last_login = new Date();
     await user.save();
 
     // Remove password from response
@@ -309,20 +309,20 @@ router.post('/verify-otp', otpValidation, checkValidation, async (req, res) => {
 
       if (user) {
         if (type === 'email') {
-          user.isEmailVerified = true;
+          user.is_email_verified = true;
         } else {
-          user.isMobileVerified = true;
+          user.is_mobile_verified = true;
         }
         await user.save();
 
         // Check if both email and mobile are verified for auto-login
-        if (user.isEmailVerified && user.isMobileVerified) {
+        if (user.is_email_verified && user.is_mobile_verified) {
           // Generate tokens for auto-login
           const tokens = generateTokens(user.id);
           
           // Save refresh token to database
-          user.refreshTokens.push({ token: tokens.refreshToken });
-          user.lastLogin = new Date();
+          user.refresh_tokens.push({ token: tokens.refreshToken });
+          user.last_login = new Date();
           await user.save();
 
           // Remove password from response
@@ -381,7 +381,7 @@ router.post('/refresh-token', async (req, res) => {
     }
 
     // Check if refresh token exists
-    const tokenExists = user.refreshTokens.some(
+    const tokenExists = user.refresh_tokens.some(
       token => token.token === refreshToken
     );
 
@@ -396,7 +396,7 @@ router.post('/refresh-token', async (req, res) => {
     const tokens = generateTokens(user.id);
 
     // Update refresh token in database
-    user.refreshTokens.push({ token: tokens.refreshToken });
+    user.refresh_tokens.push({ token: tokens.refreshToken });
     await user.save();
 
     res.json({
@@ -426,7 +426,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
       // Remove refresh token from database
       const user = await User.findByPk(req.user.id);
       if (user) {
-        user.refreshTokens = user.refreshTokens.filter(token => token.token !== refreshToken);
+        user.refresh_tokens = user.refresh_tokens.filter(token => token.token !== refreshToken);
         await user.save();
       }
     }

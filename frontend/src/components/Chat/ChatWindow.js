@@ -12,11 +12,12 @@ import ChatSearch from './ChatSearch';
 import notificationService from '../../services/notificationService';
 
 const ChatWindow = ({ chat }) => {
-  console.log('🚀 ChatWindow component started rendering');
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  console.log('🤖 ChatWindow: Current user ID:', user?.id);
-  const { messages, isSendingMessage, typingUsers, onlineUsers } = useSelector((state) => state.chat);
+  try {
+    console.log('🚀 ChatWindow component started rendering');
+    const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth);
+    console.log('🤖 ChatWindow: Current user ID:', user?.id);
+    const { messages, isSendingMessage, typingUsers, onlineUsers } = useSelector((state) => state.chat);
   
   // Debug logging
   console.log('🔍 ChatWindow - messages from Redux:', messages);
@@ -488,6 +489,10 @@ const ChatWindow = ({ chat }) => {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('❌ ChatWindow error:', error);
+    return <div>Error loading chat</div>;
+  }
 };
 
 export default ChatWindow;

@@ -31,7 +31,12 @@ const Chat = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    console.log('🔍 useEffect chatId - chatId:', chatId);
+    console.log('🔍 useEffect chatId - currentChat:', currentChat);
+    console.log('🔍 useEffect chatId - view:', view);
+    
     if (chatId && chatId !== 'new' && chatId !== 'users') {
+      console.log('🔍 useEffect chatId - dispatching getChatDetails for:', chatId);
       dispatch(getChatDetails({ chatId, params: { page: 1, limit: 50 } }));
       setView('chat');
     } else if (chatId === 'new') {
@@ -55,8 +60,11 @@ const Chat = () => {
   }, [searchParams]);
 
   const handleChatSelect = (chat) => {
+    console.log('🔍 handleChatSelect - chat:', chat);
+    console.log('🔍 handleChatSelect - chatId:', chat.id || chat._id);
     dispatch(setCurrentChat(chat));
     const chatId = chat.id || chat._id;
+    console.log('🔍 handleChatSelect - navigating to:', `/chat/${chatId}`);
     navigate(`/chat/${chatId}`);
     setView('chat');
   };
@@ -222,7 +230,12 @@ const Chat = () => {
             </motion.div>
           )}
 
-          {view === 'chat' && currentChat && (
+          {(() => {
+            console.log('🔍 Render condition - view:', view);
+            console.log('🔍 Render condition - currentChat:', currentChat);
+            console.log('🔍 Render condition - view === "chat" && currentChat:', view === 'chat' && currentChat);
+            return view === 'chat' && currentChat;
+          })() && (
             <motion.div key="chat" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }} className="flex-1">
               <ChatWindow chat={currentChat} />
             </motion.div>

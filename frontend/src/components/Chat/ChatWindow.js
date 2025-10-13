@@ -12,6 +12,7 @@ import ChatSearch from './ChatSearch';
 import notificationService from '../../services/notificationService';
 
 const ChatWindow = ({ chat }) => {
+  console.log('🚀 ChatWindow component started rendering');
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   console.log('🤖 ChatWindow: Current user ID:', user?.id);

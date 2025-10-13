@@ -8,17 +8,17 @@ export const initializeAuth = createAsyncThunk(
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
-        return null;
+        return { user: null, isAuthenticated: false };
       }
       
       // Check if token is still valid by making API call
       const response = await authAPI.getCurrentUser();
-      return response.data;
+      return { user: response.data.data.user, isAuthenticated: true };
     } catch (error) {
       // If token is invalid, clear localStorage
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
-      return rejectWithValue('Invalid session');
+      return { user: null, isAuthenticated: false };
     }
   }
 );
@@ -132,8 +132,8 @@ const initialState = {
   user: null,
   accessToken: localStorage.getItem('accessToken'), // Allow auto-load for refresh
   refreshToken: localStorage.getItem('refreshToken'), // Allow auto-load for refresh
-  isAuthenticated: !!localStorage.getItem('accessToken'), // Allow auto-login on refresh
-  isLoading: false,
+  isAuthenticated: false, // Don't auto-authenticate until verified
+  isLoading: true, // Start with loading true to prevent race conditions
   error: null,
   otpSent: false,
   otpVerified: false,
@@ -184,11 +184,9 @@ const authSlice = createSlice({
       })
       .addCase(initializeAuth.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (action.payload) {
-          state.user = action.payload.data.user;
-          state.isAuthenticated = true;
-        } else {
-          state.isAuthenticated = false;
+        state.user = action.payload.user;
+        state.isAuthenticated = action.payload.isAuthenticated;
+        if (!action.payload.isAuthenticated) {
           state.accessToken = null;
           state.refreshToken = null;
         }

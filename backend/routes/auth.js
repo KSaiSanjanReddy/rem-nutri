@@ -370,6 +370,7 @@ router.post('/refresh-token', async (req, res) => {
       });
     }
 
+    // Verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await User.findByPk(decoded.userId);
 
@@ -380,7 +381,7 @@ router.post('/refresh-token', async (req, res) => {
       });
     }
 
-    // Check if refresh token exists
+    // Check if refresh token exists in user's refresh tokens
     const tokenExists = user.refresh_tokens.some(
       token => token.token === refreshToken
     );
@@ -395,7 +396,8 @@ router.post('/refresh-token', async (req, res) => {
     // Generate new tokens
     const tokens = generateTokens(user.id);
 
-    // Update refresh token in database
+    // Remove old refresh token and add new one
+    user.refresh_tokens = user.refresh_tokens.filter(token => token.token !== refreshToken);
     user.refresh_tokens.push({ token: tokens.refreshToken });
     await user.save();
 
@@ -460,49 +462,6 @@ router.get('/me', authenticateToken, async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to get user data'
-    });
-  }
-});
-
-// @route   GET /api/auth/me
-// @desc    Get current user
-// @access  Private
-router.get('/me', async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'No token provided'
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.userId);
-
-    if (!user) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'User not found'
-      });
-    }
-
-    // Remove password from response
-    const userResponse = user.toJSON();
-    delete userResponse.password;
-
-    res.json({
-      status: 'success',
-      data: {
-        user: userResponse
-      }
-    });
-  } catch (error) {
-    console.error('Get current user error:', error);
-    res.status(401).json({
-      status: 'error',
-      message: 'Invalid token'
     });
   }
 });

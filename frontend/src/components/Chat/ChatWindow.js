@@ -16,6 +16,12 @@ const ChatWindow = ({ chat }) => {
   const { user } = useSelector((state) => state.auth);
   console.log('🤖 ChatWindow: Current user ID:', user?.id);
   const { messages, isSendingMessage, typingUsers, onlineUsers } = useSelector((state) => state.chat);
+  
+  // Debug logging
+  console.log('🔍 ChatWindow - messages from Redux:', messages);
+  console.log('🔍 ChatWindow - messages length:', messages?.length);
+  console.log('🔍 ChatWindow - messages type:', typeof messages);
+  console.log('🔍 ChatWindow - messages is array:', Array.isArray(messages));
 
   const [message, setMessage] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
@@ -378,7 +384,11 @@ const ChatWindow = ({ chat }) => {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages && messages.length > 0 ? (
+        {(() => {
+          console.log('🔍 Render condition - messages:', messages);
+          console.log('🔍 Render condition - messages && messages.length > 0:', messages && messages.length > 0);
+          return messages && messages.length > 0;
+        })() ? (
           <AnimatePresence>
             {messages.map((msg, index) => (
               <motion.div

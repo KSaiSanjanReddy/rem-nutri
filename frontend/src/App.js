@@ -33,25 +33,25 @@ function App() {
   }, [dispatch]);
 
   // Handle session storage for new tab detection
-  useEffect(() => {
-    // Check if this is a new tab/window (not a refresh)
-    const sessionKey = 'healthchat_session';
-    const currentSession = sessionStorage.getItem(sessionKey);
+  // useEffect(() => {
+  //   // Check if this is a new tab/window (not a refresh)
+  //   const sessionKey = 'healthchat_session';
+  //   const currentSession = sessionStorage.getItem(sessionKey);
     
-    if (!currentSession) {
-      // This is a new tab/window - set session marker
-      sessionStorage.setItem(sessionKey, 'active');
+  //   if (!currentSession) {
+  //     // This is a new tab/window - set session marker
+  //     sessionStorage.setItem(sessionKey, 'active');
       
-      // Check if user was logged in from another tab
-      const hasTokens = localStorage.getItem('accessToken');
-      if (hasTokens) {
-        console.log('🆕 New tab detected - user must login again for security');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        // Don't redirect immediately, let the auth flow handle it
-      }
-    }
-  }, []);
+  //     // Check if user was logged in from another tab
+  //     const hasTokens = localStorage.getItem('accessToken');
+  //     if (hasTokens) {
+  //       console.log('🆕 New tab detected - user must login again for security');
+  //       localStorage.removeItem('accessToken');
+  //       localStorage.removeItem('refreshToken');
+  //       // Don't redirect immediately, let the auth flow handle it
+  //     }
+  //   }
+  // }, []);
 
          useEffect(() => {
            // Initialize socket connection if user is authenticated

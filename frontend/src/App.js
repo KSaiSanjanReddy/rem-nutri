@@ -126,7 +126,7 @@ function App() {
                socketService.disconnect();
              };
            }
-         }, [isAuthenticated, user]);
+         }, []);
 
   if (isLoading) {
     return (

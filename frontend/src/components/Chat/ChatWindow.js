@@ -22,6 +22,7 @@ const ChatWindow = ({ chat }) => {
   console.log('🔍 ChatWindow - messages length:', messages?.length);
   console.log('🔍 ChatWindow - messages type:', typeof messages);
   console.log('🔍 ChatWindow - messages is array:', Array.isArray(messages));
+  console.log('🔍 ChatWindow - messages condition:', messages && messages.length > 0);
 
   const [message, setMessage] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);

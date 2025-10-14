@@ -287,29 +287,11 @@ const chatSlice = createSlice({
         console.log('Chat details fulfilled with payload:', action.payload);
         state.currentChat = action.payload?.data?.chat || null;
         
-        // Merge messages instead of replacing them to preserve real-time messages
+        // Clear existing messages and set new ones for this chat
         const newMessages = action.payload?.data?.messages || [];
-        const existingMessages = state.messages || [];
-        
-        // Create a map of existing messages by ID to avoid duplicates
-        const existingMessageMap = new Map();
-        existingMessages.forEach(msg => {
-          const msgId = msg.id || msg._id;
-          if (msgId) existingMessageMap.set(msgId, msg);
-        });
-        
-        // Add new messages that don't already exist
-        newMessages.forEach(msg => {
-          const msgId = msg.id || msg._id;
-          if (msgId && !existingMessageMap.has(msgId)) {
-            existingMessageMap.set(msgId, msg);
-          }
-        });
-        
-        // Convert back to array and sort by creation date
-        state.messages = Array.from(existingMessageMap.values()).sort((a, b) => 
-          new Date(a.createdAt || a.created_at) - new Date(b.createdAt || b.created_at)
-        );
+        state.messages = newMessages;
+                
+        console.log('📥 Set messages for chat, total count:', state.messages.length);
         
         state.pagination = action.payload?.data?.pagination || null;
         console.log('📥 Merged messages, total count:', state.messages.length);

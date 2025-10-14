@@ -400,6 +400,9 @@ const ChatWindow = ({ chat }) => {
         {(() => {
           console.log('🔍 Render condition - messages:', messages);
           console.log('🔍 Render condition - messages && messages.length > 0:', messages && messages.length > 0);
+          console.log('🚨 DEBUGGING: Messages array length:', messages?.length);
+          console.log('🚨 DEBUGGING: Messages type:', typeof messages);
+          console.log('🚨 DEBUGGING: Is array:', Array.isArray(messages));
           
           // Debug: Log each message to see if there are duplicates
           if (messages && messages.length > 0) {
@@ -440,6 +443,7 @@ const ChatWindow = ({ chat }) => {
           <AnimatePresence>
             {messages.map((msg, index) => {
               console.log(`🎨 Rendering message ${index}:`, msg.content, 'isOwn:', (msg['sender.id'] || msg.senderId) === (user?.id || user?._id));
+              console.log(`🚨 MESSAGE ${index} FULL OBJECT:`, msg);
               return (
                 <motion.div
                   key={msg.id || `msg-${index}`}

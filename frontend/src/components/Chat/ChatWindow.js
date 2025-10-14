@@ -151,9 +151,16 @@ const ChatWindow = ({ chat }) => {
     dispatch(addMessage(optimisticMessage));
 
     try {
+      console.log('🚨 SOCKET STATUS DEBUG:');
+      console.log('🚨 Socket exists:', !!socketService.socket);
+      console.log('🚨 Socket connected:', socketService.isConnected);
+      console.log('🚨 Socket ID:', socketService.socket?.id);
+      
       if (socketService.socket && socketService.isConnected) {
+        console.log('🚨 Using SOCKET to send message');
         socketService.sendMessage(chatId, messageData, senderId);
       } else {
+        console.log('🚨 Socket not available, using API fallback');
         // Only send via API if socket is not available
         dispatch(sendMessage({ chatId, message: messageData }));
       }

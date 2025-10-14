@@ -411,7 +411,7 @@ router.get('/:id', async (req, res) => {
 // @desc    Send a message
 // @access  Private
 router.post('/:id/message', [
-  body('content').isLength({ min: 1, max: 1000 }).withMessage('Content must be between 1 and 1000 characters'),
+  body('content').optional().isLength({ min: 1, max: 1000 }).withMessage('Content must be between 1 and 1000 characters'),
   body('messageType').optional().isIn(['text', 'image', 'document', 'file', 'audio']).withMessage('Invalid message type')
 ], checkValidation, async (req, res) => {
   try {
@@ -452,10 +452,18 @@ router.post('/:id/message', [
       });
     }
 
+    // Ensure content is not empty
+    if (!content || content.trim() === '') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Message content cannot be empty'
+      });
+    }
+
     const messageData = {
       chat_id: chatId,
       sender_id: senderId,
-      content,
+      content: content.trim(),
       message_type: messageType,
       attachments
     };

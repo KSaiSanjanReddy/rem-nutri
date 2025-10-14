@@ -419,6 +419,14 @@ router.post('/:id/message', [
     const { content, messageType = 'text', attachments = [] } = req.body;
     const senderId = req.user.id;
 
+    // Debug: Log the request body
+    console.log('🔍 POST /api/chat/:id/message - Request body:', req.body);
+    console.log('🔍 POST /api/chat/:id/message - Content:', content);
+    console.log('🔍 POST /api/chat/:id/message - Content type:', typeof content);
+    console.log('🔍 POST /api/chat/:id/message - Content length:', content?.length);
+    console.log('🔍 POST /api/chat/:id/message - MessageType:', messageType);
+    console.log('🔍 POST /api/chat/:id/message - SenderId:', senderId);
+
     // Check if chat exists and user is participant
     console.log('🔍 Looking for chat with ID:', chatId);
     const chat = await Chat.findByPk(chatId);

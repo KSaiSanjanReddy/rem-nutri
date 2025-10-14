@@ -606,6 +606,7 @@ const handleSocketMessage = async (socket, data) => {
     // Check if content is empty
     if (!message?.content || message.content.trim() === '') {
       console.log('❌ Socket: Empty content received, ignoring message');
+      console.log('❌ Socket: Full message object:', JSON.stringify(message, null, 2));
       return;
     }
     

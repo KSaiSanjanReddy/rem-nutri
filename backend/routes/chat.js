@@ -291,8 +291,8 @@ router.get('/:id', async (req, res) => {
     // First, check if the current user is a participant in this chat
     const isParticipant = await ChatParticipant.findOne({
       where: {
-        chatId: chatId,
-        userId: currentUserId,
+        chat_id: chatId,
+        user_id: currentUserId,
         is_active: true
       }
     });
@@ -368,7 +368,7 @@ router.get('/:id', async (req, res) => {
     
     console.log('📨 Found', messages.length, 'messages for chat:', chatId);
     messages.forEach((msg, index) => {
-      console.log(`📨 Message ${index + 1}: "${msg.content}" from sender ${msg['sender.id']} (${msg['sender.fullName']})`);
+      console.log(`📨 Message ${index + 1}: "${msg.content}" from sender ${msg['sender.id']} (${msg['sender.full_name']})`);
     });
 
     const totalMessagesResult = await sequelize.query(`
@@ -420,9 +420,13 @@ router.post('/:id/message', [
     const senderId = req.user.id;
 
     // Check if chat exists and user is participant
+    console.log('🔍 Looking for chat with ID:', chatId);
     const chat = await Chat.findByPk(chatId);
+    console.log('🔍 Found chat:', chat ? 'YES' : 'NO');
+    console.log('🔍 Chat details:', chat ? { id: chat.id, is_active: chat.is_active, chat_type: chat.chat_type } : 'null');
     
-    if (!chat || !chat.isActive) {
+    if (!chat || !chat.is_active) {
+      console.log('❌ Chat not found or inactive');
       return res.status(404).json({
         status: 'error',
         message: 'Chat not found'
@@ -430,15 +434,18 @@ router.post('/:id/message', [
     }
 
     // Check if user is participant in this chat
+    console.log('🔍 Checking if user is participant - chatId:', chatId, 'senderId:', senderId);
     const isParticipant = await ChatParticipant.findOne({
       where: {
-        chatId: chatId,
-        userId: senderId,
+        chat_id: chatId,
+        user_id: senderId,
         is_active: true
       }
     });
+    console.log('🔍 Is participant:', isParticipant ? 'YES' : 'NO');
 
     if (!isParticipant) {
+      console.log('❌ User is not a participant in this chat');
       return res.status(403).json({
         status: 'error',
         message: 'You are not a participant in this chat'
@@ -446,10 +453,10 @@ router.post('/:id/message', [
     }
 
     const messageData = {
-      chatId,
-      senderId,
+      chat_id: chatId,
+      sender_id: senderId,
       content,
-      messageType,
+      message_type: messageType,
       attachments
     };
 
@@ -496,8 +503,8 @@ router.put('/:id/read', async (req, res) => {
     // Check if user is participant in this chat
     const isParticipant = await ChatParticipant.findOne({
       where: {
-        chatId: chatId,
-        userId: userId,
+        chat_id: chatId,
+        user_id: userId,
         is_active: true
       }
     });

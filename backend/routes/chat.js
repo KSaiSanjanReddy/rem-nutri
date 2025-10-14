@@ -612,10 +612,10 @@ const handleSocketMessage = async (socket, data) => {
     
     // Save message to database
     const messageData = {
-      chatId,
-      senderId,
+      chat_id: chatId,
+      sender_id: senderId,
       content: message.content.trim(),
-      messageType: message.messageType || 'text',
+      message_type: message.messageType || 'text',
       attachments: message.attachments || []
     };
     

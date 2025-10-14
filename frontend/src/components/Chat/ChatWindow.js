@@ -105,6 +105,11 @@ const ChatWindow = ({ chat }) => {
       messageType: 'text'
     };
 
+    console.log('🚨 DEBUG: message state:', message);
+    console.log('🚨 DEBUG: message.trim():', message.trim());
+    console.log('🚨 DEBUG: messageData:', messageData);
+    console.log('🚨 DEBUG: messageData.content:', messageData.content);
+
     const senderId = user.id || user._id;
 
     const optimisticMessage = {

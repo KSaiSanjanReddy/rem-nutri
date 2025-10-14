@@ -398,43 +398,16 @@ const ChatWindow = ({ chat }) => {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {(() => {
-          console.log('🔍 Render condition - messages:', messages);
-          console.log('🔍 Render condition - messages && messages.length > 0:', messages && messages.length > 0);
-          console.log('🚨 DEBUGGING: Messages array length:', messages?.length);
-          console.log('🚨 DEBUGGING: Messages type:', typeof messages);
-          console.log('🚨 DEBUGGING: Is array:', Array.isArray(messages));
+          // Force debugging to show
+          console.log('🚨 FORCE DEBUG: Messages array:', messages);
+          console.log('🚨 FORCE DEBUG: Messages length:', messages?.length);
+          console.log('🚨 FORCE DEBUG: Messages type:', typeof messages);
+          console.log('🚨 FORCE DEBUG: Is array:', Array.isArray(messages));
           
-          // Debug: Log each message to see if there are duplicates
           if (messages && messages.length > 0) {
-            console.log('🔍 All messages in array:', messages);
+            console.log('🚨 FORCE DEBUG: All messages:', messages);
             messages.forEach((msg, index) => {
-              console.log(`🔍 Message ${index}:`, {
-                id: msg.id,
-                _id: msg._id,
-                content: msg.content,
-                senderId: msg['sender.id'] || msg.senderId,
-                createdAt: msg.createdAt || msg.created_at,
-                isOwn: (msg['sender.id'] || msg.senderId) === (user?.id || user?._id),
-                messageType: msg.message_type || msg.messageType,
-                fullMessage: msg
-              });
-            });
-            
-            // Check for duplicates
-            const duplicateCheck = messages.reduce((acc, msg, index) => {
-              const key = `${msg.content}-${msg['sender.id'] || msg.senderId}-${msg.createdAt || msg.created_at}`;
-              if (acc[key]) {
-                acc[key].push(index);
-              } else {
-                acc[key] = [index];
-              }
-              return acc;
-            }, {});
-            
-            Object.entries(duplicateCheck).forEach(([key, indices]) => {
-              if (indices.length > 1) {
-                console.log(`⚠️ DUPLICATE MESSAGES FOUND:`, key, 'at indices:', indices);
-              }
+              console.log(`🚨 FORCE DEBUG: Message ${index}:`, msg);
             });
           }
           

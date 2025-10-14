@@ -595,5 +595,89 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-module.exports = router;
+// Socket handler for sending messages
+const handleSocketMessage = async (socket, data) => {
+  try {
+    const { chatId, message, senderId } = data;
+    console.log(`📤 Socket: Received message for chat ${chatId} from sender ${senderId}:`, message);
+    console.log(`📤 Socket: Message content:`, message?.content);
+    console.log(`📤 Socket: Message type:`, message?.messageType);
+    
+    // Check if content is empty
+    if (!message?.content || message.content.trim() === '') {
+      console.log('❌ Socket: Empty content received, ignoring message');
+      return;
+    }
+    
+    // Save message to database
+    const messageData = {
+      chatId,
+      senderId,
+      content: message.content.trim(),
+      messageType: message.messageType || 'text',
+      attachments: message.attachments || []
+    };
+    
+    const savedMessage = await Message.create(messageData);
+    
+    // Update chat last activity
+    await Chat.update(
+      { last_activity: new Date() },
+      { where: { id: chatId } }
+    );
+    
+    // Get sender info
+    const sender = await User.findByPk(senderId, {
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
+    });
+    
+    // Broadcast message to all participants in the chat
+    const messageWithSender = {
+      id: savedMessage.id,
+      chatId,
+      senderId,
+      content: message.content,
+      messageType: message.messageType || 'text',
+      attachments: message.attachments || [],
+      isRead: false,
+      readBy: [],
+      isEdited: false,
+      editedAt: null,
+      isDeleted: false,
+      deletedAt: null,
+      createdAt: savedMessage.createdAt,
+      updatedAt: savedMessage.updatedAt,
+      'sender.id': sender.id,
+      'sender.full_name': sender.full_name,
+      'sender.profile_picture': sender.profile_picture,
+      'sender.user_type': sender.user_type
+    };
+    
+    // Get io instance from socket
+    const io = socket.server;
+    
+    // Debug: Check who's in the chat room before broadcasting
+    const chatRoom = io.sockets.adapter.rooms.get(`chat-${chatId}`);
+    const userCount = chatRoom ? chatRoom.size : 0;
+    console.log(`📊 About to broadcast to chat-${chatId} with ${userCount} users`);
+    
+    // Emit to all users in the chat room (including sender)
+    console.log(`📢 Broadcasting message to chat room: chat-${chatId}`);
+    console.log(`📢 Message content: "${message.content}" from sender ${senderId}`);
+    io.to(`chat-${chatId}`).emit('receive-message', messageWithSender);
+    console.log(`✅ Socket: Message saved and broadcasted to chat room: chat-${chatId}`);
+    
+    // Debug: Only log rooms when there are issues
+    if (userCount === 0) {
+      console.log(`⚠️ No users in chat room chat-${chatId}!`);
+      console.log(`🔍 All rooms:`, Array.from(io.sockets.adapter.rooms.keys()));
+    }
+    
+  } catch (error) {
+    console.error('Socket message error:', error);
+    socket.emit('error', { message: 'Failed to send message' });
+  }
+};
+
+module.exports = { router, handleSocketMessage };
 

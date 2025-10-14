@@ -95,6 +95,7 @@ const ChatWindow = ({ chat }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+    console.log('🚨 SUBMIT DEBUG: FORM SUBMITTED!');
     console.log('🚨 SUBMIT DEBUG: message state:', message);
     console.log('🚨 SUBMIT DEBUG: message.trim():', message.trim());
     console.log('🚨 SUBMIT DEBUG: message.length:', message.length);
@@ -510,6 +511,10 @@ const ChatWindow = ({ chat }) => {
 
           <button
             type="submit"
+            onClick={(e) => {
+              console.log('🚨 BUTTON CLICKED!');
+              handleSendMessage(e);
+            }}
             disabled={!message.trim() || isSendingMessage}
             className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg transition-colors"
             title="Send message"

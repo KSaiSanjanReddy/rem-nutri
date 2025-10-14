@@ -397,25 +397,42 @@ const ChatWindow = ({ chat }) => {
         {(() => {
           console.log('🔍 Render condition - messages:', messages);
           console.log('🔍 Render condition - messages && messages.length > 0:', messages && messages.length > 0);
+          
+          // Debug: Log each message to see if there are duplicates
+          if (messages && messages.length > 0) {
+            messages.forEach((msg, index) => {
+              console.log(`🔍 Message ${index}:`, {
+                id: msg.id,
+                content: msg.content,
+                senderId: msg['sender.id'] || msg.senderId,
+                createdAt: msg.createdAt || msg.created_at,
+                isOwn: (msg['sender.id'] || msg.senderId) === (user?.id || user?._id)
+              });
+            });
+          }
+          
           return messages && messages.length > 0;
         })() ? (
           <AnimatePresence>
-            {messages.map((msg, index) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                id={`message-${msg.id}`}
-                className={highlightedMessageId === msg.id ? 'bg-yellow-100 rounded-lg p-2' : ''}
-              >
-                <MessageBubble
-                  message={msg}
-                  isOwn={(msg['sender.id'] || msg.senderId) === (user?.id || user?._id)}
-                  highlighted={highlightedMessageId === msg.id}
-                />
-              </motion.div>
-            ))}
+            {messages.map((msg, index) => {
+              console.log(`🎨 Rendering message ${index}:`, msg.content, 'isOwn:', (msg['sender.id'] || msg.senderId) === (user?.id || user?._id));
+              return (
+                <motion.div
+                  key={msg.id || `msg-${index}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  id={`message-${msg.id || index}`}
+                  className={highlightedMessageId === msg.id ? 'bg-yellow-100 rounded-lg p-2' : ''}
+                >
+                  <MessageBubble
+                    message={msg}
+                    isOwn={(msg['sender.id'] || msg.senderId) === (user?.id || user?._id)}
+                    highlighted={highlightedMessageId === msg.id}
+                  />
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-12">

@@ -152,10 +152,11 @@ const chatSlice = createSlice({
         // Check if this message already exists (to prevent duplicates)
         const existingMessage = state.messages.find(msg => 
           msg.id === newMessage.id || 
+          msg._id === newMessage._id ||
           (!msg.id?.startsWith('temp-') && 
-           msg.senderId === newMessage.senderId && 
+           (msg.senderId === newMessage.senderId || msg['sender.id'] === newMessage['sender.id']) && 
            msg.content === newMessage.content && 
-           Math.abs(new Date(msg.createdAt) - new Date(newMessage.createdAt)) < 5000)
+           Math.abs(new Date(msg.createdAt || msg.created_at) - new Date(newMessage.createdAt || newMessage.created_at)) < 5000)
         );
         
         if (!existingMessage) {

@@ -19,6 +19,7 @@ const errorHandler = require('./middleware/errorHandler');
 const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
+app.set('trust proxy', 1); // Enable if you're behind a reverse proxy (like Nginx)
 const server = createServer(app);
 const io = new Server(server, {
   cors: {

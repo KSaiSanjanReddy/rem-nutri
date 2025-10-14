@@ -163,12 +163,12 @@ const ChatWindow = ({ chat }) => {
       } else {
         console.log('🚨 Socket not available, using API fallback');
         // Only send via API if socket is not available
-        dispatch(sendMessage({ chatId, message: messageData }));
+        dispatch(sendMessage({ chatId, messageData }));
       }
     } catch (error) {
       console.error('Socket send error:', error);
       // Only send via API if socket fails
-      dispatch(sendMessage({ chatId, message: messageData }));
+      dispatch(sendMessage({ chatId, messageData }));
     }
 
     setMessage('');

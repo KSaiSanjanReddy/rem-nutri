@@ -168,6 +168,14 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
     const messageType = message.message_type || 'text';
 
     if (messageType === 'text') {
+      // Check if message content exists and is not empty
+      if (!message.content || message.content.trim() === '') {
+        return (
+          <p className="text-base whitespace-pre-wrap break-words leading-relaxed text-gray-400 italic">
+            Message content not available
+          </p>
+        );
+      }
       return (
         <p className="text-base whitespace-pre-wrap break-words leading-relaxed">
           <SearchHighlighter text={message.content} searchQuery={getSearchQuery()} />
@@ -272,17 +280,17 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
     const status = getMessageStatus();
     if (isOwn) {
       return (
-        <div className="flex items-center space-x-2 mt-3">
-          <span className="text-sm text-white/80 font-medium">{formatTime(message.created_at)}</span>
+        <div className="flex items-center space-x-2 mt-2">
+          <span className="text-xs text-white/80 font-medium">{formatTime(message.created_at)}</span>
           <div className="flex items-center">
-            {status === 'sent' && <FiCheck className="w-4 h-4 text-white/60" />}
-            {status === 'delivered' && <FiCheck className="w-4 h-4 text-white/60" />}
-            {status === 'read' && <FiCheckCircle className="w-4 h-4 text-white" />}
+            {status === 'sent' && <FiCheck className="w-3 h-3 text-white/60" />}
+            {status === 'delivered' && <FiCheck className="w-3 h-3 text-white/60" />}
+            {status === 'read' && <FiCheckCircle className="w-3 h-3 text-white" />}
           </div>
         </div>
       );
     }
-    return <span className="text-sm text-gray-500 mt-3 font-medium">{formatTime(message.created_at)}</span>;
+    return <span className="text-xs text-gray-500 mt-2 font-medium">{formatTime(message.created_at)}</span>;
   };
 
   return (
@@ -304,10 +312,12 @@ const MessageBubble = ({ message, isOwn, showAvatar, isHighlighted = false, sear
           transition={{ duration: 0.3, ease: 'easeOut' }}
           className={`relative px-6 py-4 rounded-3xl shadow-lg backdrop-blur-sm ${isOwn ? 'bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-br-lg' : 'bg-white/80 text-gray-900 rounded-bl-lg border border-gray-200/50'}`}
         >
-          {renderMessageContent()}
-          {message.is_edited && <span className="text-xs opacity-70 italic">(edited)</span>}
-          <div className={`flex items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            {renderMessageStatus()}
+          <div className="space-y-2">
+            {renderMessageContent()}
+            {message.is_edited && <span className="text-xs opacity-70 italic">(edited)</span>}
+            <div className={`flex items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              {renderMessageStatus()}
+            </div>
           </div>
         </motion.div>
 

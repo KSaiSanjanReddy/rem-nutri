@@ -207,9 +207,9 @@ io.on('connection', (socket) => {
         createdAt: savedMessage.createdAt,
         updatedAt: savedMessage.updatedAt,
         'sender.id': sender.id,
-        'sender.fullName': sender.fullName,
-        'sender.profilePicture': sender.profilePicture,
-        'sender.userType': sender.userType
+        'sender.full_name': sender.full_name,
+        'sender.profile_picture': sender.profile_picture,
+        'sender.user_type': sender.user_type
       };
       
       // Debug: Check who's in the chat room before broadcasting

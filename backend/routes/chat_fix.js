@@ -128,7 +128,7 @@ router.post('/create', [
           [Op.in]: [currentUserId, participantId]
         }
       },
-      attributes: ['id', 'fullName', 'profilePicture', 'userType']
+      attributes: ['id', 'full_name', 'profile_picture', 'user_type']
     });
 
     // Add participants to chat using raw SQL
@@ -146,7 +146,7 @@ router.post('/create', [
       });
     }
     
-    console.log('Chat created with participants:', participants.map(p => ({ id: p.id, name: p.fullName })));
+    console.log('Chat created with participants:', participants.map(p => ({ id: p.id, name: p.full_name })));
 
     res.status(201).json({
       status: 'success',

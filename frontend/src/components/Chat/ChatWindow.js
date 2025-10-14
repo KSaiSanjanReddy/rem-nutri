@@ -58,6 +58,11 @@ const ChatWindow = ({ chat }) => {
       socketService.joinChat(chatId);
 
       socketService.onReceiveMessage((messageData) => {
+        console.log('🔔 Received message via socket:', messageData);
+        console.log('🔔 Message content:', messageData.content);
+        console.log('🔔 Message type:', messageData.messageType);
+        console.log('🔔 Sender info:', messageData['sender.full_name']);
+        
         if (messageData.chatId === chatId) {
           const isOwnMessage = (messageData['sender.id'] || messageData.senderId) === (user?.id || user?._id);
           if (isOwnMessage) {
@@ -340,7 +345,10 @@ const ChatWindow = ({ chat }) => {
           <div className="flex items-center gap-3">
             <div className="relative">
               <img
-                src={otherParticipant?.profile_picture || 'https://via.placeholder.com/40'}
+                src={otherParticipant?.profile_picture || '/default-avatar.png'}
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFM0Y0RjYiLz4KPHBhdGggZD0iTTIwIDIwQzIyLjc2MTQgMjAgMjUgMTcuNzYxNCAyNSAxNUMyNSAxMi4yMzg2IDIyLjc2MTQgMTAgMjAgMTBDMTcuMjM4NiAxMCAxNSAxMi4yMzg2IDE1IDE1QzE1IDE3Ljc2MTQgMTcuMjM4NiAyMCAyMCAyMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTIwIDIyQzE1LjU4MTcgMjIgMTIgMjUuNTgxNyAxMiAzMEgzMkMzMiAyNS41ODE3IDI4LjQxODMgMjIgMjAgMjJaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=';
+                }}
                 alt={otherParticipant?.full_name}
                 className="w-10 h-10 rounded-full object-cover"
               />

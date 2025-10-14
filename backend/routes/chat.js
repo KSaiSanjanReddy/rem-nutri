@@ -411,7 +411,7 @@ router.get('/:id', async (req, res) => {
 // @desc    Send a message
 // @access  Private
 router.post('/:id/message', [
-  body('content').optional().isLength({ min: 1, max: 1000 }).withMessage('Content must be between 1 and 1000 characters'),
+  body('content').isLength({ min: 1, max: 1000 }).withMessage('Content must be between 1 and 1000 characters'),
   body('messageType').optional().isIn(['text', 'image', 'document', 'file', 'audio']).withMessage('Invalid message type')
 ], checkValidation, async (req, res) => {
   try {
@@ -460,7 +460,11 @@ router.post('/:id/message', [
       attachments
     };
 
+    console.log('🔍 Message data before creation:', messageData);
+    console.log('🔍 Content value:', content, 'Type:', typeof content, 'Length:', content?.length);
+
     const message = await Message.create(messageData);
+    console.log('🔍 Message created successfully:', message.toJSON());
 
     // Update chat last activity
     await chat.update({

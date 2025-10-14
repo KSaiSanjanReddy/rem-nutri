@@ -164,15 +164,23 @@ io.on('connection', (socket) => {
     try {
       const { chatId, message, senderId } = data;
       console.log(`📤 Socket: Received message for chat ${chatId} from sender ${senderId}:`, message);
+      console.log(`📤 Socket: Message content:`, message?.content);
+      console.log(`📤 Socket: Message type:`, message?.messageType);
       
       // Import models
       const { Message, Chat, User } = require('./models/Chat');
+      
+      // Check if content is empty
+      if (!message?.content || message.content.trim() === '') {
+        console.log('❌ Socket: Empty content received, ignoring message');
+        return;
+      }
       
       // Save message to database
       const messageData = {
         chatId,
         senderId,
-        content: message.content,
+        content: message.content.trim(),
         messageType: message.messageType || 'text',
         attachments: message.attachments || []
       };

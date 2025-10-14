@@ -95,7 +95,15 @@ const ChatWindow = ({ chat }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!message.trim() || isSendingMessage) return;
+    console.log('🚨 SUBMIT DEBUG: message state:', message);
+    console.log('🚨 SUBMIT DEBUG: message.trim():', message.trim());
+    console.log('🚨 SUBMIT DEBUG: message.length:', message.length);
+    console.log('🚨 SUBMIT DEBUG: isSendingMessage:', isSendingMessage);
+    
+    if (!message.trim() || isSendingMessage) {
+      console.log('🚨 SUBMIT DEBUG: Early return - message empty or sending');
+      return;
+    }
 
     const chatId = chat?.id || chat?._id;
     if (!chatId) return;

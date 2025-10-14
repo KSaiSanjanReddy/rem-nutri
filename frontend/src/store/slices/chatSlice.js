@@ -139,13 +139,15 @@ const chatSlice = createSlice({
         // If this is a replacement for optimistic message
         if (newMessage.replaceOptimistic) {
           // Remove optimistic message and add real message
+          const originalLength = state.messages.length;
           state.messages = state.messages.filter(msg => 
-            !(msg.id?.startsWith('temp-') && 
+            !(msg.isOptimistic && 
               msg.content === newMessage.content && 
-              msg.senderId === newMessage.senderId)
+              (msg.senderId === newMessage.senderId || msg['sender.id'] === newMessage['sender.id']))
           );
           state.messages.push({ ...newMessage, replaceOptimistic: undefined });
           console.log('✅ Optimistic message replaced with real message:', newMessage.content);
+          console.log('✅ Messages before:', originalLength, 'after:', state.messages.length);
           return;
         }
         

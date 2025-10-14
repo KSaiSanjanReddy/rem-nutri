@@ -141,9 +141,12 @@ const ChatWindow = ({ chat }) => {
       if (socketService.socket && socketService.isConnected) {
         socketService.sendMessage(chatId, messageData, senderId);
       } else {
+        // Only send via API if socket is not available
         dispatch(sendMessage({ chatId, message: messageData }));
       }
     } catch (error) {
+      console.error('Socket send error:', error);
+      // Only send via API if socket fails
       dispatch(sendMessage({ chatId, message: messageData }));
     }
 
@@ -400,14 +403,35 @@ const ChatWindow = ({ chat }) => {
           
           // Debug: Log each message to see if there are duplicates
           if (messages && messages.length > 0) {
+            console.log('🔍 All messages in array:', messages);
             messages.forEach((msg, index) => {
               console.log(`🔍 Message ${index}:`, {
                 id: msg.id,
+                _id: msg._id,
                 content: msg.content,
                 senderId: msg['sender.id'] || msg.senderId,
                 createdAt: msg.createdAt || msg.created_at,
-                isOwn: (msg['sender.id'] || msg.senderId) === (user?.id || user?._id)
+                isOwn: (msg['sender.id'] || msg.senderId) === (user?.id || user?._id),
+                messageType: msg.message_type || msg.messageType,
+                fullMessage: msg
               });
+            });
+            
+            // Check for duplicates
+            const duplicateCheck = messages.reduce((acc, msg, index) => {
+              const key = `${msg.content}-${msg['sender.id'] || msg.senderId}-${msg.createdAt || msg.created_at}`;
+              if (acc[key]) {
+                acc[key].push(index);
+              } else {
+                acc[key] = [index];
+              }
+              return acc;
+            }, {});
+            
+            Object.entries(duplicateCheck).forEach(([key, indices]) => {
+              if (indices.length > 1) {
+                console.log(`⚠️ DUPLICATE MESSAGES FOUND:`, key, 'at indices:', indices);
+              }
             });
           }
           

@@ -32,6 +32,15 @@ const ChatWindow = ({ chat }) => {
 
   const isOtherParticipantOnline = otherParticipant && onlineUsers.includes(otherParticipant.id);
 
+  // Initialize socket connection when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token && !socketService.isConnected) {
+      console.log('🔌 Initializing socket connection...');
+      socketService.connect(token);
+    }
+  }, []);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -46,9 +55,11 @@ const ChatWindow = ({ chat }) => {
   useEffect(() => {
     const chatId = chat?.id || chat?._id;
     if (chatId) {
+      // Join chat room
       socketService.joinChat(chatId);
 
-      socketService.onReceiveMessage((messageData) => {
+      // Set up message listener (only once per component mount)
+      const handleReceiveMessage = (messageData) => {
         console.log('🔔 Received message via socket:', messageData);
         console.log('🔔 Message content:', messageData.content);
         console.log('🔔 Message type:', messageData.messageType);
@@ -76,13 +87,20 @@ const ChatWindow = ({ chat }) => {
             }
           }
         }
-      });
+      };
+
+      // Add the listener
+      socketService.onReceiveMessage(handleReceiveMessage);
 
       return () => {
+        // Clean up: leave chat and remove listener
         socketService.leaveChat(chatId);
+        if (socketService.socket) {
+          socketService.socket.off('receive-message', handleReceiveMessage);
+        }
       };
     }
-  }, [chat?._id, chat?.id, dispatch]);
+  }, [chat?._id, chat?.id, dispatch, user?.id, user?._id]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();

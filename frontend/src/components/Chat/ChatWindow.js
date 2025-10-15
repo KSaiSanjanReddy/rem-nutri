@@ -169,6 +169,7 @@ const ChatWindow = ({ chat }) => {
       isOptimistic: true
     };
 
+    // Add optimistic message first
     dispatch(addMessage(optimisticMessage));
 
     try {
@@ -179,15 +180,15 @@ const ChatWindow = ({ chat }) => {
       
       if (socketService.socket && socketService.isConnected) {
         console.log('🚨 Using SOCKET to send message');
+        // Make sure we're joined to the chat room before sending
+        socketService.joinChat(chatId);
         socketService.sendMessage(chatId, messageData, senderId);
       } else {
         console.log('🚨 Socket not available, using API fallback');
-        // Only send via API if socket is not available
         dispatch(sendMessage({ chatId, messageData }));
       }
     } catch (error) {
       console.error('Socket send error:', error);
-      // Only send via API if socket fails
       dispatch(sendMessage({ chatId, messageData }));
     }
 

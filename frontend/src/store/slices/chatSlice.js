@@ -152,7 +152,8 @@ const chatSlice = createSlice({
           state.messages = state.messages.filter(msg => 
             !(msg.isOptimistic && 
               msg.content === newMessage.content && 
-              (msg.senderId === newMessage.senderId || msg['sender.id'] === newMessage['sender.id']))
+              (msg.senderId === newMessage.senderId || msg['sender.id'] === newMessage['sender.id']) &&
+              Math.abs(new Date(msg.createdAt || msg.created_at) - new Date(newMessage.createdAt || newMessage.created_at)) < 10000)
           );
           state.messages.push({ ...newMessage, replaceOptimistic: undefined });
           console.log('✅ Optimistic message replaced with real message:', newMessage.content);

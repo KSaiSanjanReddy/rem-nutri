@@ -43,7 +43,43 @@ async function populateTestData() {
       gender: 'female'
     });
     
-    console.log('✅ Users created:', user1.full_name, user2.full_name);
+    const user3 = await User.create({
+      full_name: 'aello',
+      email: 'aello@test.com',
+      mobile: '+1234567892',
+      password: hashedPassword,
+      user_type: 'user',
+      is_email_verified: true,
+      is_mobile_verified: true,
+      date_of_birth: '1988-03-20',
+      gender: 'male'
+    });
+    
+    const user4 = await User.create({
+      full_name: 'bello',
+      email: 'bello@test.com',
+      mobile: '+1234567893',
+      password: hashedPassword,
+      user_type: 'user',
+      is_email_verified: true,
+      is_mobile_verified: true,
+      date_of_birth: '1995-07-10',
+      gender: 'female'
+    });
+    
+    const user5 = await User.create({
+      full_name: 'cello',
+      email: 'cello@test.com',
+      mobile: '+1234567894',
+      password: hashedPassword,
+      user_type: 'user',
+      is_email_verified: true,
+      is_mobile_verified: true,
+      date_of_birth: '1991-12-05',
+      gender: 'male'
+    });
+    
+    console.log('✅ Users created:', user1.full_name, user2.full_name, user3.full_name, user4.full_name, user5.full_name);
     
     // Create test chat
     console.log('💬 Creating test chat...');
@@ -54,16 +90,16 @@ async function populateTestData() {
     
     // Add participants using raw SQL
     await sequelize.query(`
-      INSERT INTO chat_participants (id, chat_id, user_id, joined_at, is_active)
-      VALUES (gen_random_uuid(), :chatId, :userId1, NOW(), true)
+      INSERT INTO chat_participants (id, chat_id, user_id, joined_at, is_active, created_at, updated_at)
+      VALUES (gen_random_uuid(), :chatId, :userId1, NOW(), true, NOW(), NOW())
     `, {
       replacements: { chatId: chat.id, userId1: user1.id },
       type: sequelize.QueryTypes.INSERT
     });
     
     await sequelize.query(`
-      INSERT INTO chat_participants (id, chat_id, user_id, joined_at, is_active)
-      VALUES (gen_random_uuid(), :chatId, :userId2, NOW(), true)
+      INSERT INTO chat_participants (id, chat_id, user_id, joined_at, is_active, created_at, updated_at)
+      VALUES (gen_random_uuid(), :chatId, :userId2, NOW(), true, NOW(), NOW())
     `, {
       replacements: { chatId: chat.id, userId2: user2.id },
       type: sequelize.QueryTypes.INSERT
@@ -108,6 +144,9 @@ async function populateTestData() {
     console.log('🔑 Login credentials:');
     console.log('  User 1: nello@test.com / password123');
     console.log('  User 2: mello@test.com / password123');
+    console.log('  User 3: aello@test.com / password123');
+    console.log('  User 4: bello@test.com / password123');
+    console.log('  User 5: cello@test.com / password123');
     
   } catch (error) {
     console.error('❌ Error:', error);

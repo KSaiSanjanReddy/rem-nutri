@@ -248,24 +248,29 @@ export class SocketService {
 
   onReceiveMessage(callback) {
     if (this.socket) {
+      // Remove any existing listeners first to prevent duplicates
+      this.socket.off('receive-message');
       this.socket.on('receive-message', callback);
     }
   }
 
   onUserTyping(callback) {
     if (this.socket) {
+      this.socket.off('user-typing');
       this.socket.on('user-typing', callback);
     }
   }
 
   onUserStatus(callback) {
     if (this.socket) {
+      this.socket.off('user-status');
       this.socket.on('user-status', callback);
     }
   }
 
   onOnlineUsers(callback) {
     if (this.socket) {
+      this.socket.off('online-users');
       this.socket.on('online-users', callback);
     }
   }

@@ -23,8 +23,9 @@ app.set('trust proxy', 1); // Enable if you're behind a reverse proxy (like Ngin
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: [process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:3000", "https://chat.consultare.io"],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 

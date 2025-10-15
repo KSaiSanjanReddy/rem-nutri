@@ -35,9 +35,16 @@ const ChatWindow = ({ chat }) => {
   // Initialize socket connection when component mounts
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
+    console.log('🔌 Socket connection check - Token exists:', !!token);
+    console.log('🔌 Socket connection check - Is connected:', socketService.isConnected);
+    console.log('🔌 Socket connection check - Socket exists:', !!socketService.socket);
+    
     if (token && !socketService.isConnected) {
       console.log('🔌 Initializing socket connection...');
       socketService.connect(token);
+    } else if (token && socketService.isConnected) {
+      console.log('🔌 Socket already connected, re-authenticating...');
+      socketService.socket.emit('authenticate', { token });
     }
   }, []);
 
@@ -101,7 +108,9 @@ const ChatWindow = ({ chat }) => {
       };
 
       // Add the listener
+      console.log('🔌 Setting up socket message listener for chat:', chatId);
       socketService.onReceiveMessage(handleReceiveMessage);
+      console.log('🔌 Socket message listener set up successfully');
 
       return () => {
         // Clean up: leave chat and remove listener

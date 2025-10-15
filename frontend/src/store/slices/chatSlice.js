@@ -133,11 +133,20 @@ const chatSlice = createSlice({
       state.currentChat = action.payload;
     },
     addMessage: (state, action) => {
+      console.log('🔔 addMessage called with:', action.payload);
       if (action.payload) {
         const newMessage = action.payload;
+        console.log('🔔 New message details:', {
+          id: newMessage.id,
+          content: newMessage.content,
+          senderId: newMessage.senderId,
+          chatId: newMessage.chatId,
+          replaceOptimistic: newMessage.replaceOptimistic
+        });
         
         // If this is a replacement for optimistic message
         if (newMessage.replaceOptimistic) {
+          console.log('🔔 Replacing optimistic message');
           // Remove optimistic message and add real message
           const originalLength = state.messages.length;
           state.messages = state.messages.filter(msg => 
@@ -158,6 +167,8 @@ const chatSlice = createSlice({
           msg._id === newMessage._id
         );
         
+        console.log('🔔 Existing message check:', existingMessage ? 'FOUND' : 'NOT FOUND');
+        
         if (!existingMessage) {
           state.messages.push(newMessage);
           console.log('✅ Message added to Redux state:', newMessage.content);
@@ -165,6 +176,8 @@ const chatSlice = createSlice({
         } else {
           console.log('⚠️ Duplicate message prevented:', newMessage.content);
         }
+      } else {
+        console.log('❌ addMessage called with empty payload');
       }
     },
     updateMessage: (state, action) => {

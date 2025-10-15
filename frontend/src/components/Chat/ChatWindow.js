@@ -64,12 +64,21 @@ const ChatWindow = ({ chat }) => {
         console.log('🔔 Message content:', messageData.content);
         console.log('🔔 Message type:', messageData.messageType);
         console.log('🔔 Sender info:', messageData['sender.full_name']);
+        console.log('🔔 Current chatId:', chatId);
+        console.log('🔔 Message chatId:', messageData.chatId);
+        console.log('🔔 Chat IDs match:', messageData.chatId === chatId);
         
         if (messageData.chatId === chatId) {
           const isOwnMessage = (messageData['sender.id'] || messageData.senderId) === (user?.id || user?._id);
+          console.log('🔔 Is own message:', isOwnMessage);
+          console.log('🔔 Message sender ID:', messageData['sender.id'] || messageData.senderId);
+          console.log('🔔 Current user ID:', user?.id || user?._id);
+          
           if (isOwnMessage) {
+            console.log('🔔 Replacing optimistic message');
             dispatch(addMessage({ ...messageData, replaceOptimistic: true }));
           } else {
+            console.log('🔔 Adding new message to Redux state');
             dispatch(addMessage(messageData));
 
             if (notificationService.canNotify() && messageData['sender.full_name']) {
@@ -86,6 +95,8 @@ const ChatWindow = ({ chat }) => {
               }
             }
           }
+        } else {
+          console.log('🔔 Message not for current chat, ignoring');
         }
       };
 

@@ -141,7 +141,8 @@ const chatSlice = createSlice({
           content: newMessage.content,
           senderId: newMessage.senderId,
           chatId: newMessage.chatId,
-          replaceOptimistic: newMessage.replaceOptimistic
+          replaceOptimistic: newMessage.replaceOptimistic,
+          isOptimistic: newMessage.isOptimistic
         });
         
         // If this is a replacement for optimistic message
@@ -168,6 +169,14 @@ const chatSlice = createSlice({
           state.messages.push({ ...newMessage, replaceOptimistic: undefined });
           console.log('✅ Optimistic message replaced with real message:', newMessage.content);
           console.log('✅ Messages before:', originalLength, 'after:', state.messages.length);
+          return;
+        }
+        
+        // If this is an optimistic message, add it normally
+        if (newMessage.isOptimistic) {
+          state.messages.push(newMessage);
+          console.log('✅ Optimistic message added to Redux state:', newMessage.content);
+          console.log('✅ Total messages in state:', state.messages.length);
           return;
         }
         

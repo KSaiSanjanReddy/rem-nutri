@@ -174,6 +174,8 @@ const chatSlice = createSlice({
         
         // If this is an optimistic message, add it normally
         if (newMessage.isOptimistic) {
+          console.log('🚨 OPTIMISTIC MESSAGE DETECTED IN REDUX');
+          console.log('🚨 OPTIMISTIC MESSAGE isOptimistic:', newMessage.isOptimistic);
           state.messages.push(newMessage);
           console.log('✅ Optimistic message added to Redux state:', newMessage.content);
           console.log('✅ Total messages in state:', state.messages.length);

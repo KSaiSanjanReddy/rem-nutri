@@ -179,6 +179,8 @@ const ChatWindow = ({ chat }) => {
     };
 
     // Add optimistic message first
+    console.log('🚨 OPTIMISTIC MESSAGE DEBUG:', optimisticMessage);
+    console.log('🚨 OPTIMISTIC MESSAGE isOptimistic:', optimisticMessage.isOptimistic);
     dispatch(addMessage(optimisticMessage));
 
     try {

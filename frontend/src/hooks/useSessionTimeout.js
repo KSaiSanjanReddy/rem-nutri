@@ -8,8 +8,6 @@ const WARNING_TIME = false; // Disabled
 export const useSessionTimeout = () => {
   const dispatch = useDispatch();
   const { isAuthenticated, lastActivity } = useSelector((state) => state.auth);
-  const timeoutRef = useRef(null);
-  const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) return;

@@ -23,7 +23,6 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue,
   } = useForm();
 

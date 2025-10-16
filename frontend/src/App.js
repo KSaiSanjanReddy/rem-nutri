@@ -81,6 +81,8 @@ function App() {
                  // Handle presence updates
                  socketService.onOnlineUsers((onlineUserIds) => {
                    console.log('👥 Received online users:', onlineUserIds);
+                   console.log('👥 Online users type:', typeof onlineUserIds);
+                   console.log('👥 Online users length:', onlineUserIds?.length);
                    dispatch(setOnlineUsers(onlineUserIds));
                  });
 

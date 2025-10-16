@@ -6,6 +6,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) => {
   const { onlineUsers } = useSelector((state) => state.chat);
+  
+  // Debug: Log online users
+  console.log('🔍 ChatList - onlineUsers:', onlineUsers);
+  console.log('🔍 ChatList - onlineUsers length:', onlineUsers?.length);
 
   const getPresenceText = (participant) => {
     if (!participant) return '';
@@ -77,6 +81,11 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
               const otherParticipant = getOtherParticipant(chat);
               const unreadCount = getUnreadCount(chat);
               const isOnline = otherParticipant && onlineUsers?.includes(otherParticipant.id || otherParticipant._id);
+              
+              // Debug: Log participant details
+              console.log(`🔍 Chat ${index} - otherParticipant:`, otherParticipant);
+              console.log(`🔍 Chat ${index} - participantId:`, otherParticipant?.id || otherParticipant?._id);
+              console.log(`🔍 Chat ${index} - isOnline:`, isOnline);
               
               return (
                 <motion.div

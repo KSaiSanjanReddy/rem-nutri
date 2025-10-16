@@ -217,14 +217,9 @@ export class SocketService {
 
   sendMessage(chatId, message, senderId) {
     if (this.socket) {
-      console.log('🚨 SOCKET DEBUG: chatId:', chatId);
-      console.log('🚨 SOCKET DEBUG: message:', message);
-      console.log('🚨 SOCKET DEBUG: message.content:', message?.content);
-      console.log('🚨 SOCKET DEBUG: senderId:', senderId);
-      console.log('📤 Socket: Emitting send-message event:', { chatId, message, senderId });
       this.socket.emit('send-message', { chatId, message, senderId });
     } else {
-      console.error('🚨 Socket not available for sending message');
+      console.error('Socket not available for sending message');
     }
   }
 

@@ -35,15 +35,10 @@ const ChatWindow = ({ chat }) => {
   // Initialize socket connection when component mounts
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    console.log('🔌 Socket connection check - Token exists:', !!token);
-    console.log('🔌 Socket connection check - Is connected:', socketService.isConnected);
-    console.log('🔌 Socket connection check - Socket exists:', !!socketService.socket);
     
     if (token && !socketService.isConnected) {
-      console.log('🔌 Initializing socket connection...');
       socketService.connect(token);
     } else if (token && socketService.isConnected) {
-      console.log('🔌 Socket already connected, re-authenticating...');
       socketService.socket.emit('authenticate', { token });
     }
   }, []);
@@ -67,25 +62,12 @@ const ChatWindow = ({ chat }) => {
 
       // Set up message listener (only once per component mount)
       const handleReceiveMessage = (messageData) => {
-        console.log('🔔 Received message via socket:', messageData);
-        console.log('🔔 Message content:', messageData.content);
-        console.log('🔔 Message type:', messageData.messageType);
-        console.log('🔔 Sender info:', messageData['sender.full_name']);
-        console.log('🔔 Current chatId:', chatId);
-        console.log('🔔 Message chatId:', messageData.chatId);
-        console.log('🔔 Chat IDs match:', messageData.chatId === chatId);
-        
         if (messageData.chatId === chatId) {
           const isOwnMessage = (messageData['sender.id'] || messageData.senderId) === (user?.id || user?._id);
-          console.log('🔔 Is own message:', isOwnMessage);
-          console.log('🔔 Message sender ID:', messageData['sender.id'] || messageData.senderId);
-          console.log('🔔 Current user ID:', user?.id || user?._id);
           
           if (isOwnMessage) {
-            console.log('🔔 Replacing optimistic message');
             dispatch(addMessage({ ...messageData, replaceOptimistic: true }));
           } else {
-            console.log('🔔 Adding new message to Redux state');
             dispatch(addMessage(messageData));
 
             if (notificationService.canNotify() && messageData['sender.full_name']) {
@@ -102,15 +84,11 @@ const ChatWindow = ({ chat }) => {
               }
             }
           }
-        } else {
-          console.log('🔔 Message not for current chat, ignoring');
         }
       };
 
       // Add the listener
-      console.log('🔌 Setting up socket message listener for chat:', chatId);
       socketService.onReceiveMessage(handleReceiveMessage);
-      console.log('🔌 Socket message listener set up successfully');
 
       return () => {
         // Clean up: leave chat and remove listener
@@ -124,14 +102,8 @@ const ChatWindow = ({ chat }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    console.log('🚨 SUBMIT DEBUG: FORM SUBMITTED!');
-    console.log('🚨 SUBMIT DEBUG: message state:', message);
-    console.log('🚨 SUBMIT DEBUG: message.trim():', message.trim());
-    console.log('🚨 SUBMIT DEBUG: message.length:', message.length);
-    console.log('🚨 SUBMIT DEBUG: isSendingMessage:', isSendingMessage);
     
     if (!message.trim() || isSendingMessage) {
-      console.log('🚨 SUBMIT DEBUG: Early return - message empty or sending');
       return;
     }
 
@@ -142,11 +114,6 @@ const ChatWindow = ({ chat }) => {
       content: message.trim(),
       messageType: 'text'
     };
-
-    console.log('🚨 DEBUG: message state:', message);
-    console.log('🚨 DEBUG: message.trim():', message.trim());
-    console.log('🚨 DEBUG: messageData:', messageData);
-    console.log('🚨 DEBUG: messageData.content:', messageData.content);
 
     const senderId = user.id || user._id;
 
@@ -179,23 +146,14 @@ const ChatWindow = ({ chat }) => {
     };
 
     // Add optimistic message first
-    console.log('🚨 OPTIMISTIC MESSAGE DEBUG:', optimisticMessage);
-    console.log('🚨 OPTIMISTIC MESSAGE isOptimistic:', optimisticMessage.isOptimistic);
     dispatch(addMessage(optimisticMessage));
 
     try {
-      console.log('🚨 SOCKET STATUS DEBUG:');
-      console.log('🚨 Socket exists:', !!socketService.socket);
-      console.log('🚨 Socket connected:', socketService.isConnected);
-      console.log('🚨 Socket ID:', socketService.socket?.id);
-      
       if (socketService.socket && socketService.isConnected) {
-        console.log('🚨 Using SOCKET to send message');
         // Make sure we're joined to the chat room before sending
         socketService.joinChat(chatId);
         socketService.sendMessage(chatId, messageData, senderId);
       } else {
-        console.log('🚨 Socket not available, using API fallback');
         dispatch(sendMessage({ chatId, messageData }));
       }
     } catch (error) {
@@ -526,10 +484,6 @@ const ChatWindow = ({ chat }) => {
 
           <button
             type="submit"
-            onClick={(e) => {
-              console.log('🚨 BUTTON CLICKED!');
-              handleSendMessage(e);
-            }}
             disabled={!message.trim() || isSendingMessage}
             className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg transition-colors"
             title="Send message"

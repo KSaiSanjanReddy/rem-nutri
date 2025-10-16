@@ -162,13 +162,15 @@ const chatSlice = createSlice({
         }
         
         // Check if this message already exists (to prevent duplicates)
-        // Only check by ID, not by content and time (which was too aggressive)
+        // Only check by real message ID, not temp IDs or content
         const existingMessage = state.messages.find(msg => 
-          msg.id === newMessage.id || 
-          msg._id === newMessage._id
+          (msg.id === newMessage.id && !msg.id.startsWith('temp-')) || 
+          (msg._id === newMessage._id && !msg._id.startsWith('temp-'))
         );
         
         console.log('🔔 Existing message check:', existingMessage ? 'FOUND' : 'NOT FOUND');
+        console.log('🔔 Checking for existing message with ID:', newMessage.id);
+        console.log('🔔 Current messages IDs:', state.messages.map(m => ({ id: m.id, isOptimistic: m.isOptimistic })));
         
         if (!existingMessage) {
           state.messages.push(newMessage);
@@ -176,6 +178,7 @@ const chatSlice = createSlice({
           console.log('✅ Total messages in state:', state.messages.length);
         } else {
           console.log('⚠️ Duplicate message prevented:', newMessage.content);
+          console.log('⚠️ Existing message found:', existingMessage);
         }
       } else {
         console.log('❌ addMessage called with empty payload');

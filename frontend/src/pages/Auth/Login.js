@@ -266,7 +266,7 @@ const Login = () => {
                           message: 'Invalid email address'
                         }
                       : {
-                          value: /^[\+]?[1-9][\d]{0,15}$/,
+                          value: /^[+]?[1-9][\d]{0,15}$/,
                           message: 'Invalid mobile number'
                         }
                   })}

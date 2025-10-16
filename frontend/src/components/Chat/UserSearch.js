@@ -15,7 +15,7 @@ const UserSearch = ({ onUserSelect, onBack }) => {
       return;
     }
 
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
     if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
       setError('Please enter a valid phone number');
       return;

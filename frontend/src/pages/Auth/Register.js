@@ -10,20 +10,17 @@ import LoadingSpinner from '../../components/UI/LoadingSpinner';
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, isAuthenticated, registrationStep, otpSent, otpVerified } = useSelector((state) => state.auth);
+  const { isLoading, error, isAuthenticated, registrationStep } = useSelector((state) => state.auth);
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userType, setUserType] = useState('user');
-  const [otpData, setOtpData] = useState({ email: '', mobile: '' });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-    setValue,
-    getValues,
   } = useForm();
 
   useEffect(() => {
@@ -65,20 +62,6 @@ const Register = () => {
     dispatch(registerUser(userData));
   };
 
-  const resendOTP = (type) => {
-    const identifier = type === 'email' ? otpData.email : otpData.mobile;
-    dispatch(sendOTP({
-      identifier,
-      type,
-      purpose: type === 'email' ? 'email-verification' : 'mobile-verification'
-    }));
-  };
-
-  const goBack = () => {
-    if (registrationStep > 1) {
-      dispatch(setRegistrationStep(registrationStep - 1));
-    }
-  };
 
   return (
     <div className="min-h-screen gradient-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -229,7 +212,7 @@ const Register = () => {
                   {...register('mobile', {
                     required: 'Mobile number is required',
                     pattern: {
-                      value: /^[\+]?[1-9][\d]{0,15}$/,
+                      value: /^[+]?[1-9][\d]{0,15}$/,
                       message: 'Invalid mobile number'
                     }
                   })}

@@ -1,7 +1,7 @@
 // Dashboard.js
 
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 // Note: These actions would need to be implemented in your Redux store
 // import {
@@ -12,7 +12,6 @@ import { motion } from "framer-motion";
 // import { fetchNotifications } from "../../redux/actions/notificationActions";
 // import { getProfile } from "../../redux/actions/authActions";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
-import { formatDistanceToNow } from "date-fns";
 import {
   FiUser,
   FiMessageSquare,

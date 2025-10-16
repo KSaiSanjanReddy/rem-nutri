@@ -15,8 +15,7 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
 
   const getLastMessagePreview = (chat) => {
     if (!chat.lastMessage) {
-      const otherParticipant = getOtherParticipant(chat);
-      return getPresenceText(otherParticipant);
+      return 'No messages yet';
     }
     const content = chat.lastMessage.content;
     return content.length > 50 ? `${content.substring(0, 50)}...` : content;
@@ -79,8 +78,6 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
               const unreadCount = getUnreadCount(chat);
               const isOnline = otherParticipant && onlineUsers?.includes(otherParticipant.id || otherParticipant._id);
               
-              console.log(`Rendering chat ${index}:`, otherParticipant?.full_name || 'No name');
-              
               return (
                 <motion.div
                   key={chat._id}
@@ -112,9 +109,14 @@ const ChatList = ({ chats, onChatSelect, onNewChat, searchQuery, currentUser }) 
                     </div>
                     
                     <div className="flex items-center justify-between mt-1">
-                      <p className="text-sm text-gray-500 truncate">
-                        {getLastMessagePreview(chat)}
-                      </p>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-sm text-gray-500 truncate">
+                          {getLastMessagePreview(chat)}
+                        </p>
+                        <span className={`text-xs ${isOnline ? 'text-green-500' : 'text-gray-400'}`}>
+                          {getPresenceText(otherParticipant)}
+                        </span>
+                      </div>
                       {unreadCount > 0 && (
                         <span className="bg-primary-600 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                           {unreadCount > 9 ? '9+' : unreadCount}

@@ -1,48 +1,69 @@
-name: Deploy to Production
+name: Deploy to Production Server
 
+# Only run on push to main branch and feature/deploy-remnutri branch
 on:
   push:
-    branches:
-      - feature/deploy-remnutri
+    branches: [ main, feature/deploy-remnutri ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            echo "🚀 Starting deployment..."
-            
-            # Navigate to project directory
-            cd /var/www/rem-nutri/HealthChatApp
-            
-            # Pull latest code
-            echo "📥 Pulling latest code from GitHub..."
-            git fetch origin
-            git checkout feature/deploy-remnutri
-            git pull origin feature/deploy-remnutri
-            
-            # Install backend dependencies
-            echo "📦 Installing backend dependencies..."
-            cd backend
-            npm install
-            
-            # Install and build frontend
-            echo "🎨 Building frontend..."
-            cd ../frontend
-            npm install
-            npm run build
-            
-            # Restart backend with PM2
-            echo "♻️ Restarting backend..."
-            cd ../backend
-            pm2 restart health-chat-backend || pm2 start server.js --name health-chat-backend
-            
-            echo "✅ Deployment completed successfully!"
-            echo "🌐 Your website is live at: https://remnutri.com"
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+    
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+      
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Run backend tests (if any)
+      working-directory: ./backend
+      run: npm test --if-present
+      
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          # Navigate to project directory
+          cd /var/www/rem-nutri/HealthChatApp
+          
+          # Pull latest code
+          git fetch origin
+          git reset --hard origin/feature/deploy-remnutri
+          
+          # Install backend dependencies
+          cd backend
+          npm ci --production
+          
+          # Restart PM2 services
+          pm2 restart health-chat-api
+          pm2 save
+          
+          # Check if services are running
+          pm2 status
+          
+          echo "✅ Deployment completed successfully!"

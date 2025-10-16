@@ -1,0 +1,54 @@
+name: Test Build (No Deployment)
+
+# Only test the build process without deploying
+on:
+  pull_request:
+    branches: [ main, feature/deploy-remnutri ]
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          frontend/package-lock.json
+          backend/package-lock.json
+    
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+      
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Run backend tests (if any)
+      working-directory: ./backend
+      run: npm test --if-present
+      
+    - name: Check build artifacts
+      run: |
+        echo "✅ Frontend build completed"
+        ls -la frontend/build/
+        echo "✅ Backend dependencies installed"
+        ls -la backend/node_modules/
+        
+    - name: Build Summary
+      run: |
+        echo "🎉 Build test completed successfully!"
+        echo "📦 Frontend build size:"
+        du -sh frontend/build/
+        echo "📦 Backend dependencies size:"
+        du -sh backend/node_modules/

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMessageCircle, FiSearch, FiPlus, FiMoreVertical } from 'react-icons/fi';
+import { FiMessageCircle, FiPlus, FiMoreVertical } from 'react-icons/fi';
 import { getChatList, getChatDetails, setCurrentChat, createChat } from '../../store/slices/chatSlice';
 import { getDoctors } from '../../store/slices/userSlice';
 import ChatList from '../../components/Chat/ChatList';
@@ -70,10 +70,6 @@ const Chat = () => {
   };
 
   const handleNewChat = () => setView('users');
-  const handleFindUsers = () => {
-    navigate('/chat/users');
-    setView('users');
-  };
 
   const handleUserSelect = async (selectedUser) => {
     if (!selectedUser || !selectedUser.id) return;
@@ -100,10 +96,6 @@ const Chat = () => {
     setView('list');
   };
 
-  const clearSearch = () => {
-    setSearchQuery('');
-    navigate('/chat');
-  };
 
   const filteredChats = chats.filter(chat => {
     if (!chat || !chat.participants || !Array.isArray(chat.participants)) return false;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMessageCircle, FiPlus, FiMoreVertical } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical } from 'react-icons/fi';
 import { getChatList, getChatDetails, setCurrentChat, createChat } from '../../store/slices/chatSlice';
 import { getDoctors } from '../../store/slices/userSlice';
 import ChatList from '../../components/Chat/ChatList';
@@ -46,7 +46,7 @@ const Chat = () => {
     } else {
       setView('list');
     }
-  }, [chatId, dispatch]);
+  }, [chatId, dispatch, currentChat, view]);
 
   useEffect(() => {
     if (!chatId || chatId === '') {

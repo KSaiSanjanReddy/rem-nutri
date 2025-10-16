@@ -16,7 +16,6 @@ import { formatDistanceToNow } from "date-fns";
 import {
   FiUser,
   FiMessageSquare,
-  FiBell,
   FiRefreshCw,
   FiActivity,
   FiArrowRight,
@@ -29,7 +28,6 @@ import {
 // import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
   // Mock data for now - replace with actual Redux selectors when implemented
@@ -37,7 +35,6 @@ const Dashboard = () => {
   const recentChats = [];
   const availableDoctors = [];
   const dashboardLoading = false;
-  const notifications = [];
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -53,33 +50,6 @@ const Dashboard = () => {
     return <LoadingSpinner size="large" />;
   }
 
-  // --------------------
-  // Render Recent Messages (changed fullName -> full_name)
-  // --------------------
-  const renderRecentMessages = recentChats?.map((chat, index) => {
-    const lastMessage = chat.messages?.[chat.messages?.length - 1];
-    const sender = lastMessage?.sender;
-
-    return (
-      <motion.div
-        key={index}
-        className="flex justify-between items-center border-b border-gray-200 p-3 hover:bg-gray-50 transition-all cursor-pointer"
-        whileHover={{ scale: 1.02 }}
-      >
-        <div>
-          <p className="font-semibold text-gray-800">
-            {sender?.full_name || "Unknown"}
-          </p>
-          <p className="text-gray-500 text-sm">
-            {lastMessage?.content?.slice(0, 40)}...
-          </p>
-        </div>
-        <span className="text-xs text-gray-400">
-          {formatDistanceToNow(new Date(lastMessage?.createdAt))} ago
-        </span>
-      </motion.div>
-    );
-  });
 
   // --------------------
   // Render Recent Chats (changed fullName -> full_name)

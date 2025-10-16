@@ -147,13 +147,24 @@ const chatSlice = createSlice({
         // If this is a replacement for optimistic message
         if (newMessage.replaceOptimistic) {
           console.log('🔔 Replacing optimistic message');
+          console.log('🔔 Looking for optimistic message with content:', newMessage.content);
+          console.log('🔔 Looking for optimistic message with senderId:', newMessage.senderId);
+          
           // Remove ALL optimistic messages with the same content from the same sender
           const originalLength = state.messages.length;
+          const beforeFilter = state.messages.filter(msg => msg.isOptimistic);
+          console.log('🔔 Optimistic messages before filter:', beforeFilter.length);
+          console.log('🔔 Optimistic messages details:', beforeFilter.map(m => ({ content: m.content, senderId: m.senderId, isOptimistic: m.isOptimistic })));
+          
           state.messages = state.messages.filter(msg => 
             !(msg.isOptimistic && 
               msg.content === newMessage.content && 
               (msg.senderId === newMessage.senderId || msg['sender.id'] === newMessage['sender.id']))
           );
+          
+          const afterFilter = state.messages.filter(msg => msg.isOptimistic);
+          console.log('🔔 Optimistic messages after filter:', afterFilter.length);
+          
           state.messages.push({ ...newMessage, replaceOptimistic: undefined });
           console.log('✅ Optimistic message replaced with real message:', newMessage.content);
           console.log('✅ Messages before:', originalLength, 'after:', state.messages.length);

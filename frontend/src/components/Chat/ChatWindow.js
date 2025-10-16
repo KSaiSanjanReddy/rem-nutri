@@ -162,6 +162,7 @@ const ChatWindow = ({ chat }) => {
       isEdited: false,
       editedAt: null,
       isDeleted: false,
+      isOptimistic: true,
       deletedAt: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -174,8 +175,7 @@ const ChatWindow = ({ chat }) => {
       'sender.consultation_fee': user.consultation_fee,
       'sender.is_email_verified': user.is_email_verified,
       'sender.is_mobile_verified': user.is_mobile_verified,
-      'sender.is_active': user.is_active,
-      isOptimistic: true
+      'sender.is_active': user.is_active
     };
 
     // Add optimistic message first

@@ -495,7 +495,7 @@ const ChatWindow = ({ chat }) => {
         {/* File Upload Modal */}
         {showFileUpload && (
           <div className="mt-4">
-            <FileUpload onUpload={handleFileUpload} onClose={() => setShowFileUpload(false)} />
+            <FileUpload onFileUpload={handleFileUpload} onClose={() => setShowFileUpload(false)} />
           </div>
         )}
 

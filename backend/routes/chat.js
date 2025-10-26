@@ -581,7 +581,10 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    // Return full URL for production
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
     
     res.json({
       status: 'success',

@@ -205,7 +205,7 @@ const ChatWindow = ({ chat }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const uploadResponse = await fetch('http://localhost:5000/api/chat/upload', {
+      const uploadResponse = await fetch('/api/chat/upload', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
         body: formData
@@ -222,7 +222,7 @@ const ChatWindow = ({ chat }) => {
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `http://localhost:5000${uploadResult.data.url}`,
+        url: uploadResult.data.url,  // Server returns full URL
         filename: uploadResult.data.filename
       };
 

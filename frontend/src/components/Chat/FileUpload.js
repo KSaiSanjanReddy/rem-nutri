@@ -47,6 +47,11 @@ const FileUpload = ({ onFileUpload, onClose }) => {
 
   const handleUpload = async () => {
     if (uploadedFiles.length === 0) return;
+    
+    if (!onFileUpload) {
+      console.error('onFileUpload prop is not provided');
+      return;
+    }
 
     setUploading(true);
     
